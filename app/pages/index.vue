@@ -1,14 +1,25 @@
 <script setup lang="ts">
-const { $api } = useNuxtApp()
+import Features from './home/components/Features.vue';
+import Slider from './home/components/Slider.vue';
+import BestSeller from './home/components/BestSeller.vue';
 
-// ambil produk
-const { data } = await $api.get("/products")
-console.log("Produk:", data)
+
+definePageMeta({
+  title: "Gudang Grosiran - Home",
+  description: "Belanja grosir murah dan terpercaya"
+})
 </script>
 
 <template>
-  <div>
-    <h1>Home</h1>
-    <p>Lihat console untuk data produk</p>
+  <div class="container my-3">
+    <Slider />
+    <Features />
+
+     <BestSeller 
+      title="Best Seller"
+      subtitle="A virtual assistant collects the products from your list"
+      :limit="6"
+      api-endpoint="/api/products/bestsellers"
+    />
   </div>
 </template>

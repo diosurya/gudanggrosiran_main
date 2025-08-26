@@ -5,7 +5,7 @@ const { data: blogs } = await useFetch("/blogs", {
 </script>
 
 <template>
-  <div>
+  <div class="container my-5">
     <h1>Blog</h1>
     <ul>
       <li v-for="blog in blogs" :key="blog.id">

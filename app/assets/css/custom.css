@@ -1,0 +1,31 @@
+:root {
+  --bs-body-font-family: 'Poppins', sans-serif;
+}
+
+body {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+
+li.nav-item {
+  font-weight: 600;
+}
+
+.logo-gg {
+  max-width: 150px;
+}
+
+.banner-left-icon
+ {
+    background: #f4f6fa;
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+}
+
+@media (max-width: 1440px) {
+    .banner-left-icon {
+        display: block !important;
+        text-align: center;
+    }
+}
