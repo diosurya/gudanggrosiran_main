@@ -1,3 +1,156 @@
+<script setup lang="ts">
+// by Dio Putra
+// Agustus 2025
+// https://github.com/diosurya
+
+
+interface StoreLocation {
+  id: number
+  name: string
+  address: string
+  phone: string
+  latitude?: number
+  longitude?: number
+}
+
+const menus = [
+  { title: "Home", path: "/" },
+  { title: "About", path: "/about" },
+  { title: "Shop", path: "/produk" },
+  { title: "Blog", path: "/blogs" },
+  { title: "Contact", path: "/contact" },
+]
+
+const storeLocations: StoreLocation[] = [
+  {
+    id: 1,
+    name: "Samarinda",
+    address: "Jl. Mulawarman No. 123, Samarinda, Kalimantan Timur",
+    phone: "(0541) 123-4567"
+  },
+  {
+    id: 2,
+    name: "Kupang",
+    address: "Jl. El Tari No. 456, Kupang, Nusa Tenggara Timur",
+    phone: "(0380) 987-6543"
+  }
+]
+
+const isScrolled = ref(false)
+const isMobileMenuOpen = ref(false)
+const isMobileSearchOpen = ref(false)
+const isLocationModalOpen = ref(false)
+const searchQuery = ref('')
+const wishlistCount = ref(4)
+const cartCount = ref(5)
+
+const selectedLocation = ref<StoreLocation>(storeLocations[1])
+
+// Location functions
+const openLocationModal = () => {
+  isLocationModalOpen.value = true
+  document.body.classList.add('modal-open')
+}
+
+const closeLocationModal = () => {
+  isLocationModalOpen.value = false
+  document.body.classList.remove('modal-open')
+}
+
+const selectLocation = (location: StoreLocation) => {
+  selectedLocation.value = location
+}
+
+const saveSelectedLocation = () => {
+  if (process.client) {
+    localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation.value))
+  }
+  closeLocationModal()
+}
+
+const detectUserLocation = () => {
+  if (process.client && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude
+        const userLng = position.coords.longitude
+        
+        console.log('User location:', userLat, userLng)
+        
+
+        if (userLng > 119) {
+          selectedLocation.value = storeLocations.find(loc => loc.name === 'Kupang') || storeLocations[1]
+        } else {
+          selectedLocation.value = storeLocations.find(loc => loc.name === 'Samarinda') || storeLocations[0]
+        }
+      },
+      (error) => {
+        console.log('Location detection error:', error)
+        selectedLocation.value = storeLocations[1]
+      }
+    )
+  }
+}
+
+// Load saved location from localStorage
+const loadSavedLocation = () => {
+  if (process.client) {
+    const savedLocation = localStorage.getItem('selectedLocation')
+    if (savedLocation) {
+      try {
+        selectedLocation.value = JSON.parse(savedLocation)
+      } catch (error) {
+        console.error('Error parsing saved location:', error)
+        selectedLocation.value = storeLocations[1] 
+      }
+    } else {
+      detectUserLocation()
+    }
+  }
+}
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 100
+}
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+  if (isMobileMenuOpen.value) {
+    document.body.classList.add('mobile-menu-open')
+  } else {
+    document.body.classList.remove('mobile-menu-open')
+  }
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+  document.body.classList.remove('mobile-menu-open')
+}
+
+const toggleMobileSearch = () => {
+  isMobileSearchOpen.value = !isMobileSearchOpen.value
+}
+
+// Lifecycle
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+  loadSavedLocation()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+  document.body.classList.remove('mobile-menu-open')
+  document.body.classList.remove('modal-open')
+})
+
+const route = useRoute()
+
+
+watch(() => route.path, () => {
+  closeMobileMenu()
+})
+</script>
+
 <template>
   <div>
     <!-- Topbar -->
@@ -17,8 +170,8 @@
       </div>
     </div>
 
-    <!-- Main Header - Sticky -->
-    <header class="main-header sticky-top bg-white shadow-sm" :class="{ 'scrolled': isScrolled }">
+    <!-- Main Header - Fixed Position -->
+    <header class="main-header bg-white shadow-sm" :class="{ 'scrolled': isScrolled }">
       <div class="container">
         <div class="row align-items-center py-3">
           <!-- Logo -->
@@ -32,7 +185,17 @@
               />
             </NuxtLink>
           </div>
-
+          <div class="col-6 col-lg-2">
+           <div class="location-box">
+                <button class="btn btn-sm location-button" @click="openLocationModal">
+                    <span class="location-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    </span>
+                    <span class="locat-name">{{ selectedLocation.name }}</span>
+                    <i class="fa-solid fa-angle-down"></i>
+                </button>
+            </div>
+          </div>
           <!-- Search Bar - Desktop -->
           <div class="col-lg-6 d-none d-lg-block">
             <form class="search-form">
@@ -43,7 +206,7 @@
                   class="form-control border-end-0"
                   type="search"
                 />
-                <button type="submit" class="btn btn-outline-secondary border-start-0">
+                <button type="submit" class="btn btn-outline-secondary border-start-0 btn-sarch">
                   <i class="bi bi-search"></i>
                 </button>
               </div>
@@ -51,7 +214,7 @@
           </div>
 
           <!-- Header Actions -->
-          <div class="col-6 col-lg-4">
+          <div class="col-6 col-lg-2">
             <div class="d-flex align-items-center justify-content-end gap-3">
               <!-- Mobile Search Toggle -->
               <button 
@@ -75,7 +238,7 @@
               </NuxtLink>
 
               <!-- Cart -->
-              <NuxtLink to="/cart" class="header-icon">
+              <NuxtLink to="#" class="header-icon">
                 <i class="bi bi-bag position-relative">
                   <span class="badge bg-success badge-sm">{{ cartCount }}</span>
                 </i>
@@ -115,7 +278,7 @@
     </header>
 
     <!-- Navigation Menu -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-top sticky-nav" :class="{ 'd-none': isScrolled }">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-top" :class="{ 'nav-hidden': isScrolled }">
       <div class="container">
         <!-- Desktop Menu -->
         <div class="collapse navbar-collapse d-none d-lg-block">
@@ -185,7 +348,7 @@
             <span class="badge bg-primary ms-auto">{{ wishlistCount }}</span>
           </NuxtLink>
           
-          <NuxtLink to="/cart" class="d-flex align-items-center text-decoration-none" @click="closeMobileMenu">
+          <NuxtLink to="#" class="d-flex align-items-center text-decoration-none" @click="closeMobileMenu">
             <i class="bi bi-bag fs-5 me-3"></i>
             <span>Shopping Cart</span>
             <span class="badge bg-success ms-auto">{{ cartCount }}</span>
@@ -193,77 +356,80 @@
         </div>
       </div>
     </div>
+
+    <!-- Location Modal -->
+    <div 
+      v-if="isLocationModalOpen" 
+      class="modal-overlay" 
+      @click="closeLocationModal"
+    >
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-geo-alt-fill me-2"></i>
+              Pilih Lokasi Toko
+            </h5>
+            <button 
+              type="button" 
+              class="btn-close" 
+              @click="closeLocationModal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted mb-3">Pilih lokasi toko terdekat untuk pengalaman berbelanja yang lebih baik</p>
+            
+            <div class="location-list">
+              <div 
+                v-for="location in storeLocations" 
+                :key="location.id"
+                class="location-item"
+                :class="{ 'active': selectedLocation.id === location.id }"
+                @click="selectLocation(location)"
+              >
+                <div class="location-info">
+                  <div class="location-name">{{ location.name }}</div>
+                  <div class="location-address">{{ location.address }}</div>
+                  <div class="location-phone">{{ location.phone }}</div>
+                </div>
+                <div class="location-check" v-if="selectedLocation.id === location.id">
+                  <i class="bi bi-check-circle-fill text-success"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              @click="closeLocationModal"
+            >
+              Batal
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-primary" 
+              @click="saveSelectedLocation"
+            >
+              Simpan Lokasi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup>
-// Menu data
-const menus = [
-  { title: "Home", path: "/" },
-  { title: "Shop", path: "/shop/shop-grid" },
-  { title: "Blog", path: "/blogs" },
-  { title: "Contact", path: "/contact" },
-]
 
-// Reactive states
-const isScrolled = ref(false)
-const isMobileMenuOpen = ref(false)
-const isMobileSearchOpen = ref(false)
-const searchQuery = ref('')
-const wishlistCount = ref(4)
-const cartCount = ref(5)
-
-// Handle scroll for sticky effect
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 100
-}
-
-// Mobile menu functions
-const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
-  if (isMobileMenuOpen.value) {
-    document.body.classList.add('mobile-menu-open')
-  } else {
-    document.body.classList.remove('mobile-menu-open')
-  }
-}
-
-const closeMobileMenu = () => {
-  isMobileMenuOpen.value = false
-  document.body.classList.remove('mobile-menu-open')
-}
-
-const toggleMobileSearch = () => {
-  isMobileSearchOpen.value = !isMobileSearchOpen.value
-}
-
-// Lifecycle
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-  document.body.classList.remove('mobile-menu-open')
-})
-
-// Get current route
-const route = useRoute()
-
-// Close mobile menu on route change
-watch(() => route.path, () => {
-  closeMobileMenu()
-})
-</script>
 
 <style scoped>
-/* Topbar transition */
-.topbar {
-  transition: all 0.3s ease;
-}
 
-/* Sticky header */
 .main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   transition: all 0.3s ease;
   z-index: 1030;
 }
@@ -273,11 +439,41 @@ watch(() => route.path, () => {
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
 }
 
-.sticky-nav {
-  position: sticky;
+.topbar {
+  position: fixed;
   top: 0;
-  z-index: 1029;
+  left: 0;
+  right: 0;
   transition: all 0.3s ease;
+  z-index: 1029;
+}
+
+.main-header:not(.scrolled) {
+  top: 42px;
+}
+
+/* Navigation positioning */
+.navbar {
+  position: fixed;
+  top: 120px;
+  left: 0;
+  right: 0;
+  z-index: 1028;
+  transition: all 0.3s ease;
+}
+
+.navbar.nav-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.main-header.scrolled + .navbar {
+  top: 70px;
+}
+
+:global(body) {
+  padding-top: 160px;
 }
 
 /* Logo transition */
@@ -285,6 +481,29 @@ watch(() => route.path, () => {
   transition: height 0.3s ease;
   max-height: 45px;
   width: auto;
+}
+
+/* Location button styling */
+.location-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  color: #333;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.location-button:hover {
+  border-color: #e62129;
+  color: #e62129;
+}
+
+.locat-name {
+  font-weight: 500;
 }
 
 /* Header icons */
@@ -297,7 +516,7 @@ watch(() => route.path, () => {
 }
 
 .header-icon:hover {
-  color: #007bff;
+  color: #e62129;
 }
 
 /* Badge styling */
@@ -333,7 +552,7 @@ watch(() => route.path, () => {
 
 .nav-link:hover,
 .nav-link.active {
-  color: #007bff !important;
+  color: #e62129 !important;
 }
 
 .nav-link.active::after {
@@ -344,10 +563,9 @@ watch(() => route.path, () => {
   transform: translateX(-50%);
   width: 30px;
   height: 2px;
-  background: #007bff;
+  background: #e62129;
 }
 
-/* Mobile Menu */
 .mobile-menu-overlay {
   position: fixed;
   top: 0;
@@ -402,7 +620,7 @@ watch(() => route.path, () => {
 .mobile-menu-link:hover,
 .mobile-menu-link.active {
   background: #f8f9fa;
-  color: #007bff;
+  color: #e62129;
   padding-left: 2rem;
 }
 
@@ -410,7 +628,168 @@ watch(() => route.path, () => {
   background: #f8f9fa;
 }
 
-/* Prevent body scroll when mobile menu is open */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.modal-dialog {
+  max-width: 500px;
+  width: 90%;
+  margin: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close:hover {
+  color: #000;
+}
+
+.btn-close::before {
+  content: "×";
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.location-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.location-item {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.location-item:hover {
+  border-color: #e62129;
+  background: #f8f9fa;
+}
+
+.location-item.active {
+  border-color: #e62129;
+  background: #fff5f5;
+}
+
+.location-info {
+  flex: 1;
+}
+
+.location-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.location-address {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.location-phone {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.location-check {
+  font-size: 1.25rem;
+  margin-left: 1rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.btn-primary {
+  background: #e62129;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #c71e24;
+}
+
+
+:global(body.modal-open) {
+  overflow: hidden;
+}
+
 :global(body.mobile-menu-open) {
   overflow: hidden;
 }
@@ -418,6 +797,17 @@ watch(() => route.path, () => {
 /* Animations */
 @keyframes fadeIn {
   to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
     opacity: 1;
   }
 }
@@ -430,6 +820,10 @@ watch(() => route.path, () => {
   
   .main-header.scrolled .container .row {
     padding: 0.5rem 0;
+  }
+
+  :global(body) {
+    padding-top: 80px; /* Reduced padding for mobile */
   }
 }
 
@@ -446,9 +840,24 @@ watch(() => route.path, () => {
   .main-header.scrolled .logo-gg {
     max-height: 30px;
   }
+
+  .modal-dialog {
+    width: 95%;
+  }
+
+  .location-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .location-check {
+    align-self: flex-end;
+    margin-left: 0;
+    margin-top: -1.5rem;
+  }
 }
 
-/* Custom scrollbar for mobile menu */
 .mobile-menu-content::-webkit-scrollbar {
   width: 4px;
 }

@@ -14,6 +14,16 @@ export default defineNuxtConfig({
     "@/assets/css/custom.css"
   ],
 
+  site: {
+    url: 'http://gudanggrosiran.com/'
+  },
+
+  nitro: {
+    prerender: {
+      failOnError: false
+    }
+  },
+
   modules: [
     "@bootstrap-vue-next/nuxt",
     "@nuxtjs/sitemap",

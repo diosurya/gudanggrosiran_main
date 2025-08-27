@@ -2,13 +2,13 @@
   <section class="bestseller-section py-5 my-5">
     <div class="container">
       <!-- Section Header -->
-      <div class="row mb-5">
-        <div class="col-12 text-center">
+      <div class="row mb-2 px-3">
+        <div class="col-12">
           <h2 class="section-title mb-3">{{ title || 'Best Seller' }}</h2>
-          <div class="title-divider mx-auto mb-3">
+          <div class="title-divider mb-3">
             <i class="bi bi-award text-success"></i>
           </div>
-          <p class="section-subtitle text-muted">
+          <p class="text-muted">
             {{ subtitle || 'A virtual assistant collects the products from your list' }}
           </p>
         </div>
@@ -65,11 +65,11 @@
               </div>
               
               <!-- Hover overlay with view button -->
-              <div class="hover-overlay d-flex align-items-center justify-content-center">
+              <!-- <div class="hover-overlay d-flex align-items-center justify-content-center">
                 <button class="btn btn-view text-white fw-bold px-4 py-2" @click="viewProduct(product)">
                   View
                 </button>
-              </div>
+              </div> -->
               
               <!-- Action icons -->
               <div class="product-actions">
@@ -113,7 +113,7 @@
                   <span v-if="product.discount_price" class="product-price-old text-muted small">
                     ${{ formatPrice(product.original_price) }}
                   </span>
-                  <span class="product-price fw-bold text-primary">
+                  <span class="product-price fw-bold text-main">
                     ${{ formatPrice(product.price || product.discount_price || product.original_price) }}
                   </span>
                 </div>
@@ -135,7 +135,7 @@
         <div class="col-12 text-center">
           <button 
             @click="loadMore" 
-            class="btn btn-outline-primary px-5 py-2"
+            class="btn btn-outline-danger px-5 py-2"
             :disabled="loadingMore"
           >
             <span v-if="loadingMore">
@@ -143,7 +143,7 @@
               Loading...
             </span>
             <span v-else>
-              Load More Products
+              See More
             </span>
           </button>
         </div>
@@ -153,28 +153,11 @@
 </template>
 
 <script setup>
-// Props
 const props = defineProps({
-  title: {
-    type: String,
-    default: 'Best Seller'
-  },
-  subtitle: {
-    type: String,
-    default: 'A virtual assistant collects the products from your list'
-  },
-  apiEndpoint: {
-    type: String,
-    default: '/api/products/bestsellers'
-  },
-  limit: {
-    type: Number,
-    default: 10
-  },
-  category: {
-    type: String,
-    default: null
-  }
+  title: { type: String, default: 'Best Seller' },
+  subtitle: { type: String, default: 'Produk dummy random' },
+  limit: { type: Number, default: 10 },
+  category: { type: String, default: null }
 })
 
 // Reactive data
@@ -187,13 +170,25 @@ const hasMore = ref(true)
 const currentPage = ref(1)
 const wishlist = ref([])
 
-// Runtime config untuk API base URL
-const config = useRuntimeConfig()
-
-// Computed
+// jumlah produk per halaman
 const perPage = computed(() => props.limit)
 
-// Methods
+// ⬇️ Fallback data generator (dummy random)
+const getFallbackData = (count = 8, startId = 1) => {
+  return Array.from({ length: count }).map((_, i) => ({
+    id: startId + i,
+    name: `Produk Dummy ${startId + i}`,
+    image: `https://picsum.photos/seed/${Math.random().toString(36).substring(2,8)}/300/300`,
+    price: Math.floor(Math.random() * 50000) + 10000,
+    original_price: Math.floor(Math.random() * 70000) + 60000,
+    weight: 1000,
+    rating: (Math.random() * 5).toFixed(1),
+    in_stock: Math.random() > 0.2,
+    is_bestseller: Math.random() > 0.5
+  }))
+}
+
+// ⬇️ Pura-pura fetch, padahal isi dummy
 const fetchProducts = async (page = 1, append = false) => {
   try {
     if (page === 1) {
@@ -203,44 +198,22 @@ const fetchProducts = async (page = 1, append = false) => {
       loadingMore.value = true
     }
 
-    // Build API URL with parameters
-    const params = new URLSearchParams({
-      page: page.toString(),
-      limit: perPage.value.toString(),
-      ...(props.category && { category: props.category })
-    })
+    // ❌ API dimatiin, langsung pakai dummy
+    const newProducts = getFallbackData(perPage.value, (page - 1) * perPage.value + 1)
 
-    const response = await $fetch(`${config.public.apiBase}${props.apiEndpoint}?${params}`)
-    
-    if (response.success) {
-      const newProducts = response.data.products || response.data || []
-      
-      if (append) {
-        products.value = [...products.value, ...newProducts]
-        displayedProducts.value = [...displayedProducts.value, ...newProducts]
-      } else {
-        products.value = newProducts
-        displayedProducts.value = newProducts
-      }
-
-      // Check if there are more products
-      hasMore.value = newProducts.length === perPage.value && 
-                     (response.data.has_more || response.pagination?.has_more)
-      
-      currentPage.value = page
+    if (append) {
+      products.value.push(...newProducts)
+      displayedProducts.value = [...products.value]
     } else {
-      throw new Error(response.message || 'Failed to fetch products')
+      products.value = newProducts
+      displayedProducts.value = newProducts
     }
+
+    hasMore.value = products.value.length < 40 // max 40 produk
+    currentPage.value = page
   } catch (err) {
     console.error('Error fetching products:', err)
-    error.value = err.message || 'Failed to load products. Please try again.'
-    
-    // Fallback data untuk development
-    if (process.dev) {
-      products.value = getFallbackData()
-      displayedProducts.value = products.value
-      error.value = null
-    }
+    error.value = 'Failed to load dummy products'
   } finally {
     loading.value = false
     loadingMore.value = false
@@ -252,144 +225,44 @@ const loadMore = async () => {
   await fetchProducts(currentPage.value + 1, true)
 }
 
-const getFallbackData = () => [
-  {
-    id: 1,
-    name: 'Elama Fine Round Gloss Dinnerware Set',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop',
-    price: 80.00,
-    original_price: 100.00,
-    weight: 1000,
-    rating: 4.5,
-    in_stock: true,
-    is_bestseller: true
-  },
-  {
-    id: 2,
-    name: 'Goddess Marble Hexagon Party Plates',
-    image: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=300&h=300&fit=crop',
-    price: 80.00,
-    weight: 1000,
-    rating: 4.8,
-    in_stock: true,
-    is_bestseller: true
-  },
-  {
-    id: 3,
-    name: 'Heavy Duty Cane Round Basket',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop',
-    price: 80.00,
-    weight: 1000,
-    rating: 4.3,
-    in_stock: true,
-    is_bestseller: false
-  },
-  {
-    id: 4,
-    name: 'Nature Baby Merino Knit Bassinet Blanket',
-    image: 'https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=300&h=300&fit=crop',
-    price: 80.00,
-    weight: 1000,
-    rating: 4.7,
-    in_stock: true,
-    is_bestseller: true
-  },
-  {
-    id: 5,
-    name: 'ELSTONE HOME White Colour Bath Towel',
-    image: 'https://images.unsplash.com/photo-1615971677499-5467cbab01c0?w=300&h=300&fit=crop',
-    price: 80.00,
-    weight: 1000,
-    rating: 4.4,
-    in_stock: true,
-    is_bestseller: false
-  },
-  {
-    id: 6,
-    name: 'LOREM IPSUM White Colour Bath Towel',
-    image: 'https://images.unsplash.com/photo-1615971677499-5467cbab01c0?w=300&h=300&fit=crop',
-    price: 80.00,
-    weight: 1000,
-    rating: 4.4,
-    in_stock: true,
-    is_bestseller: false
-  }
-
-]
-
 // Utility functions
-const getProductImage = (product) => {
-  return product.image || product.images?.[0] || 'https://via.placeholder.com/300x300?text=No+Image'
-}
+const getProductImage = (product) =>
+  product.image || 'https://via.placeholder.com/300x300?text=No+Image'
 
-const formatPrice = (price) => {
-  return typeof price === 'number' ? price.toFixed(2) : parseFloat(price || 0).toFixed(2)
-}
+const formatPrice = (price) =>
+  typeof price === 'number'
+    ? price.toLocaleString("id-ID")
+    : parseFloat(price || 0).toLocaleString("id-ID")
 
-const formatWeight = (weight) => {
-  if (!weight) return '1 KG'
-  
-  if (typeof weight === 'string' && weight.includes('KG')) {
-    return weight
-  }
-  
-  const kg = typeof weight === 'number' ? weight / 1000 : parseFloat(weight) / 1000
-  return `${kg} KG`
-}
+const formatWeight = (weight) => `${weight / 1000} KG`
 
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/300x300?text=No+Image'
 }
 
 // Product actions
-const viewProduct = (product) => {
-  console.log('View product:', product.id)
-  navigateTo(`/product/${product.id}`)
-}
-
 const addToCart = (product) => {
   if (!product.in_stock) return
-  console.log('Add to cart:', product.id)
-  // Emit event or call store action
-  // $emit('add-to-cart', product)
+  console.log('Add to cart:', product)
 }
 
 const toggleWishlist = (product) => {
   const index = wishlist.value.findIndex(id => id === product.id)
-  if (index > -1) {
-    wishlist.value.splice(index, 1)
-  } else {
-    wishlist.value.push(product.id)
-  }
-  console.log('Toggle wishlist:', product.id, isInWishlist(product.id))
+  if (index > -1) wishlist.value.splice(index, 1)
+  else wishlist.value.push(product.id)
 }
 
-const isInWishlist = (productId) => {
-  return wishlist.value.includes(productId)
-}
+const isInWishlist = (id) => wishlist.value.includes(id)
 
-const toggleQuickView = (product) => {
-  console.log('Quick view:', product.id)
-  // $emit('quick-view', product)
-}
-
-const toggleCompare = (product) => {
-  console.log('Toggle compare:', product.id)
-  // $emit('toggle-compare', product)
-}
+const toggleQuickView = (product) => console.log('Quick view:', product)
+const toggleCompare = (product) => console.log('Compare:', product)
 
 // Lifecycle
 onMounted(() => {
   fetchProducts()
 })
-
-// Watch for prop changes
-watch(() => [props.category, props.apiEndpoint], () => {
-  currentPage.value = 1
-  hasMore.value = true
-  fetchProducts()
-}, { deep: true })
 </script>
+
 
 <style scoped>
 /* Section Styling */
@@ -547,7 +420,7 @@ watch(() => [props.category, props.apiEndpoint], () => {
 }
 
 .action-btn:hover {
-  background: #3490dc;
+  background: #e62129;
   color: white;
   transform: scale(1.1);
 }
@@ -598,7 +471,7 @@ watch(() => [props.category, props.apiEndpoint], () => {
 }
 
 .product-price {
-  color: #3490dc;
+  color: #e62129;
   font-size: 16px;
 }
 
@@ -610,13 +483,13 @@ watch(() => [props.category, props.apiEndpoint], () => {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid #3490dc;
-  color: #3490dc;
+  border: 1px solid #e62129;
+  color: #e62129;
   transition: all 0.2s ease;
 }
 
 .add-to-cart-btn:hover:not(:disabled) {
-  background: #3490dc;
+  background: #e62129;
   color: white;
   transform: scale(1.1);
 }
