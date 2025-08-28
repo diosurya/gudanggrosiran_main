@@ -111,10 +111,12 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div class="price-container">
                   <span v-if="product.discount_price" class="product-price-old text-muted small">
-                    ${{ formatPrice(product.original_price) }}
+                    <!-- ${{ formatPrice(product.original_price) }} -->
+                    Rp 17.000
                   </span>
                   <span class="product-price fw-bold text-main">
-                    ${{ formatPrice(product.price || product.discount_price || product.original_price) }}
+                    <!-- ${{ formatPrice(product.price || product.discount_price || product.original_price) }} -->
+                    Rp 12.000
                   </span>
                 </div>
                 <button 
@@ -209,7 +211,7 @@ const fetchProducts = async (page = 1, append = false) => {
       displayedProducts.value = newProducts
     }
 
-    hasMore.value = products.value.length < 40 // max 40 produk
+    hasMore.value = products.value.length < 8 // max 40 produk
     currentPage.value = page
   } catch (err) {
     console.error('Error fetching products:', err)
