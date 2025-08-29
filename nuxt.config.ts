@@ -1,11 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-// export default defineNuxtConfig({
-//   compatibilityDate: '2025-07-15',
-//   devtools: { enabled: true }
-// })
-// nuxt.config.ts
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
 export default defineNuxtConfig({
   css: [
     "bootstrap/dist/css/bootstrap.css",
@@ -15,12 +7,15 @@ export default defineNuxtConfig({
   ],
 
   site: {
-    url: 'http://gudanggrosiran.com/'
+    url: 'https://staging.gudanggrosiran.com/'
   },
 
   nitro: {
+    preset: "node-server",
     prerender: {
-      failOnError: false
+      failOnError: false,
+      crawlLinks: false,
+      routes: []
     }
   },
 
@@ -28,7 +23,6 @@ export default defineNuxtConfig({
     "@bootstrap-vue-next/nuxt",
     "@nuxtjs/sitemap",
     "@nuxtjs/robots"
-    // ⚠️ jangan pakai "@nuxtjs/seo" karena tidak ada modul itu untuk Nuxt 4
   ],
 
   app: {
@@ -39,7 +33,7 @@ export default defineNuxtConfig({
         { name: "keywords", content: "grosir, ecommerce, belanja murah" }
       ],
       link: [
-        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "icon", type: "image/x-icon", href: "https://be.gudanggrosiran.com/storage/main/favicon.ico" },
         { 
           rel: "stylesheet", 
           href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" 

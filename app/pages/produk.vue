@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-5">
+  <div class="container mb-5">
     <h1>Product</h1>
     <p>Lorem Ipsum.</p>
   </div>

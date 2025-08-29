@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const slides = [
-  { id: 1, image: "	https://gudanggrosiran.com/storage/gkjk1-1.png", title: "Kacamata Selam", caption: "Diskon 34%" },
+  { id: 1, image: "	https://be.gudanggrosiran.com/storage/general/gkjk1-1.png", title: "Kacamata Selam", caption: "Diskon 34%" },
   { id: 2, image: "https://picsum.photos/1200/400?1", title: "Cuci Gudang", caption: "Diskon 79%" },
   { id: 3, image: "https://picsum.photos/1200/400?2", title: "Produk Terlaris", caption: "10RB++ Terjual" }
 ]

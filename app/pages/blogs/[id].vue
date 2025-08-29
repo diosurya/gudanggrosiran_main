@@ -90,22 +90,6 @@ const tags = computed<string[]>(() =>
 <template>
   <div class="min-h-screen bg-light">
     <div class="container py-4">
-
-      <!-- Breadcrumb -->
-      <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb bg-white rounded px-3 py-2 shadow-sm mb-0">
-          <li class="breadcrumb-item">
-            <NuxtLink to="/" class="text-decoration-none">Beranda</NuxtLink>
-          </li>
-          <li class="breadcrumb-item">
-            <NuxtLink to="/blogs" class="text-decoration-none">Blog</NuxtLink>
-          </li>
-          <li class="breadcrumb-item active" aria-current="page">
-            {{ post?.title || 'Detail' }}
-          </li>
-        </ol>
-      </nav>
-
       <div class="row g-4">
         <!-- Main -->
         <div class="col-lg-8">

@@ -15,7 +15,7 @@ useHead({
 </script>
 
 <template>
-  <div class="container my-5">
+  <div class="container mb-5">
     <h1>About</h1>
     <ul>
       <li v-for="blog in blogs" :key="blog.id">

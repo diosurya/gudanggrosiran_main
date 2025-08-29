@@ -14,11 +14,11 @@ interface StoreLocation {
 }
 
 const menus = [
-  { title: "Home", path: "/" },
-  { title: "About", path: "/about" },
-  { title: "Shop", path: "/produk" },
-  { title: "Blog", path: "/blogs" },
-  { title: "Contact", path: "/contact" },
+  { title: "Beranda", path: "/" },
+  { title: "Tentang Kami", path: "/about" },
+  { title: "Produk", path: "/produk" },
+  { title: "Artikel", path: "/blogs" },
+  { title: "Kontak Kami", path: "/contact" },
 ]
 
 const storeLocations: StoreLocation[] = [

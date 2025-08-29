@@ -14,41 +14,6 @@ const totalPages = ref(1)
 const totalItems = ref(0)
 const perPage = ref(12)
 
-// Breadcrumb dinamis
-const breadcrumbs = computed(() => {
-  const pathSegments = route.path.split('/').filter(segment => segment)
-  const crumbs = [{ name: 'Beranda', path: '/' }]
-  
-  let currentPath = ''
-  pathSegments.forEach((segment, index) => {
-    currentPath += `/${segment}`
-    
-    // Customize nama breadcrumb berdasarkan segment
-    let name = segment
-    switch(segment) {
-      case 'blogs':
-        name = 'Blog Terbaru dan Artikel Menarik'
-        break
-      case 'products':
-        name = 'Produk'
-        break
-      case 'categories':
-        name = 'Kategori'
-        break
-      default:
-        name = segment.charAt(0).toUpperCase() + segment.slice(1)
-    }
-    
-    crumbs.push({
-      name,
-      path: currentPath,
-      isLast: index === pathSegments.length - 1
-    })
-  })
-  
-  return crumbs
-})
-
 useHead({
   title: "Blog Terbaru dan Artikel Menarik - Gudang Grosiran",
   meta: [
@@ -140,29 +105,8 @@ const getVisiblePages = () => {
 
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <div class="container mx-auto px-4 py-6">
-      <!-- Dynamic Breadcrumb -->
-      <nav class="mb-6 py-5" aria-label="breadcrumb">
-        <ol class="breadcrumb bg-breadcrumb rounded-lg shadow-sm px-4 py-3 mb-0">
-          <li 
-            v-for="(crumb, index) in breadcrumbs" 
-            :key="index"
-            class="breadcrumb-item"
-            :class="{ active: crumb.isLast }"
-          >
-            <NuxtLink 
-              v-if="!crumb.isLast"
-              :to="crumb.path" 
-              class="text-decoration-none text-main hover:text-primary-dark transition-colors"
-            >
-              <i class="fas fa-home me-1" v-if="crumb.name === 'Beranda'"></i>
-              {{ crumb.name }}
-            </NuxtLink>
-            <span v-else class="text-muted fw-medium">{{ crumb.name }}</span>
-          </li>
-        </ol>
-      </nav>
 
+    <div class="container mx-auto px-4 py-6">
       <!-- Enhanced Header -->
       <div class="mb-5">
         <div class="row">
@@ -294,8 +238,9 @@ const getVisiblePages = () => {
         <!-- Enhanced Sidebar -->
         <div class="col-lg-4 col-md-5">
           <div class="sticky-top" style="top: 1rem;">
+            
             <!-- Search Box -->
-            <div class="card border-0 shadow-sm mb-4">
+            <!-- <div class="card border-0 shadow-sm mb-4">
               <div class="card-body">
                 <h6 class="fw-bold text-dark mb-3">
                   <i class="fas fa-search text-primary me-2"></i>Pencarian
@@ -311,11 +256,11 @@ const getVisiblePages = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Latest Posts -->
             <div class="card border-0 shadow-sm mb-4">
-              <div class="card-header bg-white border-0 pb-0">
+              <div class="card-body bg-white border-0 pb-0">
                 <h6 class="fw-bold text-dark mb-0">
                   <i class="fas fa-fire text-danger me-2"></i>Latest Posts
                 </h6>
@@ -362,7 +307,7 @@ const getVisiblePages = () => {
 
             <!-- Popular Tags -->
             <div class="card border-0 shadow-sm mb-4">
-              <div class="card-header bg-white border-0 pb-0">
+              <div class="card-body bg-white border-0 pb-0">
                 <h6 class="fw-bold text-dark mb-0">
                   <i class="fas fa-tags text-success me-2"></i>Popular Tags
                 </h6>
@@ -381,7 +326,7 @@ const getVisiblePages = () => {
             </div>
 
             <!-- Newsletter -->
-            <div class="card border-0 shadow-sm bg-gradient-main text-white">
+            <!-- <div class="card border-0 shadow-sm bg-gradient-main text-white">
               <div class="card-body text-center">
                 <i class="fas fa-envelope-open fa-2x mb-3 opacity-75"></i>
                 <h6 class="fw-bold mb-2">Berlangganan Newsletter</h6>
@@ -397,7 +342,9 @@ const getVisiblePages = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> -->
+
+
           </div>
         </div>
 
