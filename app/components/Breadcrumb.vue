@@ -1,5 +1,5 @@
 <template>
-  <!-- Hanya tampil jika bukan halaman home -->
+  <!-- Breadcrumb hanya tampil jika bukan halaman home -->
   <nav 
     v-if="showBreadcrumb" 
     class="mb-3 py-4" 
@@ -41,13 +41,9 @@ interface BreadcrumbItem {
 }
 
 interface Props {
-  // Untuk override breadcrumb custom jika diperlukan
   customBreadcrumbs?: BreadcrumbItem[]
-  // Mapping custom untuk nama route
   routeNameMap?: Record<string, string>
-  // Halaman yang tidak menampilkan breadcrumb (default: home)
   excludeRoutes?: string[]
-  // Apakah menampilkan home sebagai first breadcrumb
   showHome?: boolean
 }
 
@@ -62,20 +58,28 @@ const route = useRoute()
 
 // Default mapping untuk route names
 const defaultRouteNameMap: Record<string, string> = {
-  'blogs': 'Blog Terbaru dan Artikel Menarik',
-  'products': 'Produk',
-  'categories': 'Kategori',
-  'about': 'Tentang Kami',
-  'contact': 'Kontak',
-  'cart': 'Keranjang',
-  'checkout': 'Checkout',
-  'profile': 'Profil',
-  'orders': 'Pesanan',
-  'wishlist': 'Wishlist',
-  'search': 'Pencarian',
-  'login': 'Masuk',
-  'register': 'Daftar',
+  blogs: 'Blog Terbaru dan Artikel Menarik',
+  products: 'Produk',
+  categories: 'Kategori',
+  about: 'Tentang Kami',
+  contact: 'Kontak Kami',
+  cart: 'Keranjang',
+  checkout: 'Checkout',
+  profile: 'Profil',
+  orders: 'Pesanan',
+  wishlist: 'Wishlist',
+  search: 'Pencarian',
+  login: 'Masuk',
+  register: 'Daftar',
   'forgot-password': 'Lupa Password'
+}
+
+// Fungsi helper untuk ubah slug jadi Title Case
+function slugToTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
 
 // Cek apakah breadcrumb harus ditampilkan
@@ -84,23 +88,17 @@ const showBreadcrumb = computed(() => {
 })
 
 const breadcrumbs = computed(() => {
-  // Jika tidak perlu tampil breadcrumb, return empty array
-  if (!showBreadcrumb.value) {
-    return []
-  }
+  if (!showBreadcrumb.value) return []
 
-  // Jika ada custom breadcrumbs, gunakan itu
   if (props.customBreadcrumbs) {
     return props.showHome 
       ? [{ name: 'Beranda', path: '/' }, ...props.customBreadcrumbs]
       : props.customBreadcrumbs
   }
 
-  // Generate breadcrumbs dari route path
   const pathSegments = route.path.split('/').filter(segment => segment)
   const crumbs: BreadcrumbItem[] = []
   
-  // Tambahkan home jika showHome true
   if (props.showHome) {
     crumbs.push({ name: 'Beranda', path: '/' })
   }
@@ -108,14 +106,12 @@ const breadcrumbs = computed(() => {
   let currentPath = ''
   pathSegments.forEach((segment, index) => {
     currentPath += `/${segment}`
-    
-    // Merge default mapping dengan custom mapping
+
     const routeNameMap = { ...defaultRouteNameMap, ...props.routeNameMap }
-    
-    // Customize nama breadcrumb berdasarkan segment
-    let name = routeNameMap[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
-    
-    // Jika segment adalah number (ID), gunakan title dari route meta atau params
+
+    let name = routeNameMap[segment] || slugToTitle(segment)
+
+    // Kalau segment berupa angka → anggap detail
     if (/^\d+$/.test(segment)) {
       if (route.meta?.breadcrumbTitle) {
         name = route.meta.breadcrumbTitle as string
@@ -124,9 +120,8 @@ const breadcrumbs = computed(() => {
       } else if (route.params?.title) {
         name = route.params.title as string
       } else {
-        // Ambil context dari segment sebelumnya
-        const previousSegment = pathSegments[index - 1]
-        const contextName = routeNameMap[previousSegment] || previousSegment
+        const prev = pathSegments[index - 1]
+        const contextName = routeNameMap[prev] || slugToTitle(prev)
         name = `Detail ${contextName}`
       }
     }
@@ -157,7 +152,6 @@ const breadcrumbs = computed(() => {
   background-color: #eeeeee !important;
 }
 
-/* Breadcrumb custom styling */
 .breadcrumb {
   --bs-breadcrumb-divider: '›';
   background-color: white;

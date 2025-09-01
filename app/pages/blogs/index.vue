@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from "vue"
 import axios from "axios"
 import { useRoute } from "vue-router"
+const { $baseAPi, $baseUrlBE } = useNuxtApp()
 
 const blogs = ref<any[]>([])
 const latestPosts = ref<any[]>([])
@@ -27,7 +28,7 @@ useHead({
 const fetchBlogs = async (page: number = 1) => {
   loading.value = true
   try {
-    const res = await axios.get(`https://be.gudanggrosiran.com/api/blogs?page=${page}&per_page=${perPage.value}`)
+    const res = await $baseAPi.get(`/landing/blogs?page=${page}&per_page=${perPage.value}`)
     if (res.data.success) {
       blogs.value = res.data.data
       
@@ -86,8 +87,7 @@ const truncateText = (text: string, length: number = 150) => {
 
 // Get full image URL
 const getImageUrl = (imagePath: string | null) => {
-  if (!imagePath) return 'https://via.placeholder.com/400x200/e3f2fd/1976d2?text=Blog+Image'
-  return `https://be.gudanggrosiran.com${imagePath}`
+   return `${baseURL}${imagePath}`
 }
 
 // Get visible pages for pagination
@@ -161,12 +161,12 @@ const getVisiblePages = () => {
           <div v-else class="row g-4">
             <div 
               v-for="blog in blogs" 
-              :key="blog.id" 
+              :key="blog.slug" 
               class="col-lg-6 col-md-12 col-sm-6"
             >
               <div class="card h-100 border-0 shadow-sm hover-lift transition-all">
                 <div class="position-relative overflow-hidden">
-                  <NuxtLink :to="`/blogs/${blog.id}`" class="text-decoration-none">
+                  <NuxtLink :to="`/blogs/${blog.slug}`" class="text-decoration-none">
                     <img 
                       :src="getImageUrl(blog.cover_image)" 
                       :alt="blog.title" 
@@ -206,7 +206,7 @@ const getVisiblePages = () => {
                     </div>
                   </div>
                   
-                  <NuxtLink :to="`/blogs/${blog.id}`" class="text-decoration-none">
+                  <NuxtLink :to="`/blogs/${blog.slug}`" class="text-decoration-none">
                     <h5 class="card-title text-dark mb-3 hover-text-main transition-colors line-clamp-2">
                       {{ blog.title }}
                     </h5>
@@ -218,7 +218,7 @@ const getVisiblePages = () => {
                   
                   <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
                     <NuxtLink 
-                      :to="`/blogs/${blog.id}`" 
+                      :to="`/blogs/${blog.slug}`" 
                       class="btn btn-main btn-sm fw-medium hover-shadow-sm transition-all text-white"
                     >
                       <i class="fas fa-arrow-right me-1"></i>
@@ -269,10 +269,10 @@ const getVisiblePages = () => {
                 <div class="d-flex flex-column gap-3">
                   <div 
                     v-for="post in latestPosts" 
-                    :key="post.id" 
+                    :key="post.slug" 
                     class="d-flex align-items-start hover-bg-light p-2 rounded transition-colors"
                   >
-                    <NuxtLink :to="`/blogs/${post.id}`" class="text-decoration-none flex-shrink-0 me-3">
+                    <NuxtLink :to="`/blogs/${post.slug}`" class="text-decoration-none flex-shrink-0 me-3">
                       <img 
                         :src="getImageUrl(post.cover_image)" 
                         class="rounded shadow-sm hover-lift-sm transition-transform"
@@ -286,7 +286,7 @@ const getVisiblePages = () => {
                         <i class="fas fa-clock me-1"></i>{{ formatDate(post.created_at) }}
                       </p>
                       <NuxtLink 
-                        :to="`/blogs/${post.id}`" 
+                        :to="`/blogs/${post.slug}`" 
                         class="text-decoration-none text-dark small fw-medium hover-text-main transition-colors line-clamp-2"
                       >
                         {{ post.title }}
@@ -317,7 +317,7 @@ const getVisiblePages = () => {
                   <span 
                     v-for="tag in ['Anak Kos','Tips','Rekomendasi','Lifestyle','Praktis','Hemat']" 
                     :key="tag" 
-                    class="badge bg-light text-dark border hover-bg-main hover-text-white transition-all cursor-pointer px-3 py-2"
+                    class="badge bg-light text-dark border hover-bg-main hover-text-main transition-all cursor-pointer px-3 py-2"
                   >
                     #{{ tag }}
                   </span>
@@ -343,8 +343,6 @@ const getVisiblePages = () => {
                 </div>
               </div>
             </div> -->
-
-
           </div>
         </div>
 
@@ -466,6 +464,10 @@ const getVisiblePages = () => {
   background: linear-gradient(135deg, var(--main-color), #c41e24);
 }
 
+.hover-text-main:hover {
+  color: #e62129 !important;
+}
+
 /* Skeleton Loading Styles */
 .skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -550,10 +552,6 @@ const getVisiblePages = () => {
 
 .hover-zoom:hover {
   transform: scale(1.05);
-}
-
-.hover-text-white:hover {
-  color: white !important;
 }
 
 .hover-bg-light:hover {
@@ -737,10 +735,6 @@ html {
 
 .hover-bg-primary:hover {
   background-color: var(--bs-primary) !important;
-}
-
-.hover-text-white:hover {
-  color: white !important;
 }
 
 .hover-shadow-sm:hover {

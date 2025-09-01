@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// by Dio Putra
-// Agustus 2025
-// https://github.com/diosurya
 
 
 interface StoreLocation {
@@ -285,7 +282,7 @@ watch(() => route.path, () => {
           <ul class="navbar-nav gap-4">
             <li v-for="menu in menus" :key="menu.path" class="nav-item">
               <NuxtLink 
-                class="nav-link fw-medium" 
+                class="nav-link fw-medium text-decoration-none" 
                 :to="menu.path"
                 :class="{ 'active': route.path === menu.path }"
               >

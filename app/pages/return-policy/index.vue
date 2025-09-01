@@ -2,7 +2,7 @@
 const config = useRuntimeConfig()
 
 // ambil data dari API
-const { data: page } = await useFetch("/pages/slug/kontak-kami", {
+const { data: page } = await useFetch("/pages/slug/return-policy", {
   baseURL: config.public.apiBase
 })
 
@@ -29,8 +29,6 @@ useHead({
 
 <template>
   <div class="container mb-5">
-    <h1>{{ page?.title }}</h1>
-    <p>Under Contruction.</p>
-
+    <div v-html="page?.content"></div>
   </div>
 </template>

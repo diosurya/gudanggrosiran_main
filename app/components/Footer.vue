@@ -41,12 +41,24 @@ onUnmounted(() => {
         <div class="col-md-3 mb-4">
           <h6 class="fw-semibold mb-3">Navigasi</h6>
           <ul class="list-unstyled small">
-            <li><a href="/" class="text-black text-decoration-none">Beranda</a></li>
-            <li><a href="/produk" class="text-black text-decoration-none">Produk</a></li>
-            <li><a href="/tentang" class="text-black text-decoration-none">Tentang Kami</a></li>
-            <li><a href="/kontak" class="text-black text-decoration-none">Kontak</a></li>
+            <li>
+              <NuxtLink to="/" class="text-black text-decoration-none">Beranda</NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/produk" class="text-black text-decoration-none">Produk</NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/about" class="text-black text-decoration-none">Tentang Kami</NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/contact" class="text-black text-decoration-none">Kontak</NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/return-policy" class="text-black text-decoration-none">Return Policy</NuxtLink>
+            </li>
           </ul>
         </div>
+
 
         <!-- Support -->
         <div class="col-md-3 mb-4">

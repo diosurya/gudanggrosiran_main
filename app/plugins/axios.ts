@@ -1,8 +1,19 @@
+// plugins/axios.ts
 import axios from "axios";
 
 export default defineNuxtPlugin(() => {
-  const api = axios.create({
-    // baseURL: "http://localhost:8000/api",
+  // Base URL tanpa /api
+  const baseUrlBE = axios.create({
+    // baseURL: "http://127.0.0.1:8000",
+    baseURL: "https://be.gudanggrosiran.com",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  // Base URL dengan /api
+  const baseAPi = axios.create({
+    // baseURL: "http://127.0.0.1:8000/api",
     baseURL: "https://be.gudanggrosiran.com/api",
     headers: {
       "Content-Type": "application/json",
@@ -11,7 +22,8 @@ export default defineNuxtPlugin(() => {
 
   return {
     provide: {
-      axios: api,
+      baseUrlBE,
+      baseAPi, 
     },
   };
 });

@@ -1,26 +1,34 @@
 <script setup lang="ts">
-const { data: blogs } = await useFetch("/blogs", {
-  baseURL: useRuntimeConfig().public.apiBase
+const config = useRuntimeConfig()
+
+// ambil data dari API
+const { data: page } = await useFetch("/pages/slug/about", {
+  baseURL: config.public.apiBase
 })
 
+// pasang meta SEO dari API
 useHead({
-  title: "Tentang Kami - Gudang Grosiran",
+  title: page.value?.meta_title || page.value?.title,
   meta: [
-    { name: "description", content: "Kenali Gudang Grosiran, e-commerce grosir terpercaya untuk belanja murah." },
-    { name: "keywords", content: "tentang gudang grosiran, ecommerce grosir" },
-    { property: "og:title", content: "Tentang Gudang Grosiran" },
-    { property: "og:description", content: "Kenali Gudang Grosiran, e-commerce grosir terpercaya untuk belanja murah." },
+    { name: "description", content: page.value?.meta_description },
+    { name: "keywords", content: page.value?.meta_keywords },
+    { property: "og:title", content: page.value?.og_title },
+    { property: "og:description", content: page.value?.og_description },
+    { property: "og:type", content: page.value?.og_type },
+    { property: "og:image", content: page.value?.og_image },
+    { property: "twitter:title", content: page.value?.twitter_title },
+    { property: "twitter:description", content: page.value?.twitter_description },
+    { property: "twitter:image", content: page.value?.twitter_image },
+    { property: "twitter:card", content: page.value?.twitter_card },
+  ],
+  link: [
+    page.value?.canonical_url ? { rel: "canonical", href: page.value.canonical_url } : {}
   ]
 })
 </script>
 
 <template>
   <div class="container mb-5">
-    <h1>About</h1>
-    <ul>
-      <li v-for="blog in blogs" :key="blog.id">
-        <NuxtLink :to="`/blogs/${blog.slug}`">{{ blog.title }}</NuxtLink>
-      </li>
-    </ul>
+    <div v-html="page?.content"></div>
   </div>
 </template>

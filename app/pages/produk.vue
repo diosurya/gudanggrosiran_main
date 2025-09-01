@@ -1,6 +1,6 @@
 <template>
   <div class="container mb-5">
     <h1>Product</h1>
-    <p>Lorem Ipsum.</p>
+    <p>Under Contruction.</p>
   </div>
 </template>
