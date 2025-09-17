@@ -16,7 +16,7 @@
 
       <!-- Loading State -->
       <div v-if="loading" class="row">
-        <div v-for="n in 6" :key="n" class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-4">
+        <div v-for="n in 6" :key="n" class="col-md-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-4">
           <div class="product-skeleton">
             <div class="skeleton-image"></div>
             <div class="skeleton-content">
@@ -269,7 +269,8 @@ onMounted(() => {
 <style scoped>
 /* Section Styling */
 .bestseller-section {
-  background: #f8f9fa;
+/*  background: #f8f9fa; */
+  background: #fff;
 }
 
 .section-title {
@@ -570,12 +571,7 @@ onMounted(() => {
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-  .col-xl-2 {
-    flex: 0 0 auto;
-    width: 20%;
-  }
-}
+
 
 @media (max-width: 576px) {
   .section-title {

@@ -2,6 +2,11 @@
   --bs-body-font-family: 'Poppins', sans-serif;
 }
 
+a {
+    color: #000;
+    text-decoration: underline;
+}
+
 body {
   font-family: 'Poppins', sans-serif !important;
 }
@@ -53,7 +58,8 @@ button.btn.location-button {
 }
 
 ul li a {
-  color: #e62129 !important;
+  color: #000;
+  /* color: #e62129 !important; */
   text-decoration: none;
 }
 
@@ -64,4 +70,8 @@ ul li a:hover {
 
 .hover-text-main:hover {
   color: #e62129 !important;
+}
+
+@media (max-width: 991px) {
+  .hide-mobile { display: none !important;}
 }

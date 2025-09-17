@@ -87,7 +87,10 @@ const truncateText = (text: string, length: number = 150) => {
 
 // Get full image URL
 const getImageUrl = (imagePath: string | null) => {
-   return `${baseURL}${imagePath}`
+  if (!imagePath) {
+    return "https://via.placeholder.com/400x200/e3f2fd/1976d2?text=Blog+Image"
+  }
+  return `${$baseUrlBE.defaults.baseURL}/${imagePath.replace(/^\/+/, "")}`
 }
 
 // Get visible pages for pagination

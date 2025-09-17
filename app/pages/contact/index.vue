@@ -1,12 +1,16 @@
 <script setup lang="ts">
-const config = useRuntimeConfig()
+const { $baseAPi } = useNuxtApp()
 
-// ambil data dari API
-const { data: page } = await useFetch("/pages/slug/kontak-kami", {
-  baseURL: config.public.apiBase
-})
+const page = ref<any>(null)
 
-// pasang meta SEO dari API
+try {
+  const res = await $baseAPi.get("/pages/slug/return-policy")
+  page.value = res.data
+} catch (err) {
+  console.error("Gagal fetch page:", err)
+}
+
+
 useHead({
   title: page.value?.meta_title || page.value?.title,
   meta: [

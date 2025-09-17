@@ -172,7 +172,7 @@ watch(() => route.path, () => {
       <div class="container">
         <div class="row align-items-center py-3">
           <!-- Logo -->
-          <div class="col-6 col-lg-2">
+          <div class="col-4 col-lg-2">
             <NuxtLink to="/" class="navbar-brand">
               <img 
                 class="logo-gg" 
@@ -182,7 +182,7 @@ watch(() => route.path, () => {
               />
             </NuxtLink>
           </div>
-          <div class="col-6 col-lg-2">
+          <div class="col-4 col-lg-2">
            <div class="location-box">
                 <button class="btn btn-sm location-button" @click="openLocationModal">
                     <span class="location-arrow">
@@ -211,7 +211,7 @@ watch(() => route.path, () => {
           </div>
 
           <!-- Header Actions -->
-          <div class="col-6 col-lg-2">
+          <div class="col-4 col-lg-2">
             <div class="d-flex align-items-center justify-content-end gap-3">
               <!-- Mobile Search Toggle -->
               <button 
@@ -275,7 +275,7 @@ watch(() => route.path, () => {
     </header>
 
     <!-- Navigation Menu -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-top" :class="{ 'nav-hidden': isScrolled }">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-top hide-mobile" :class="{ 'nav-hidden': isScrolled }">
       <div class="container">
         <!-- Desktop Menu -->
         <div class="collapse navbar-collapse d-none d-lg-block">

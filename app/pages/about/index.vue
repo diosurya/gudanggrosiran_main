@@ -1,12 +1,15 @@
 <script setup lang="ts">
-const config = useRuntimeConfig()
+const { $baseAPi } = useNuxtApp()
 
-// ambil data dari API
-const { data: page } = await useFetch("/pages/slug/about", {
-  baseURL: config.public.apiBase
-})
+const page = ref<any>(null)
 
-// pasang meta SEO dari API
+try {
+  const res = await $baseAPi.get("/pages/slug/about")
+  page.value = res.data
+} catch (err) {
+  console.error("Gagal fetch page:", err)
+}
+
 useHead({
   title: page.value?.meta_title || page.value?.title,
   meta: [
@@ -21,9 +24,9 @@ useHead({
     { property: "twitter:image", content: page.value?.twitter_image },
     { property: "twitter:card", content: page.value?.twitter_card },
   ],
-  link: [
-    page.value?.canonical_url ? { rel: "canonical", href: page.value.canonical_url } : {}
-  ]
+  link: page.value?.canonical_url
+    ? [{ rel: "canonical", href: page.value.canonical_url }]
+    : [],
 })
 </script>
 

@@ -7,26 +7,27 @@ const slides = [
 </script>
 
 <template>
-  <!-- <div class="container my-3"> -->
-  <BCarousel
-    id="carousel-fade"
-    fade
-    indicators
-    controls
-    background="#000"
-    :interval="3000"
-    img-width="1024"
-    img-height="400"
-    class="mb-3"
-  >
-    <BCarouselSlide
-      v-for="slide in slides"
-      :key="slide.id"
-      :img-src="slide.image"
+  <div id="sliderDkstp">
+    <BCarousel
+      id="carousel-fade"
+      fade
+      indicators
+      controls
+      background="#000"
+      :interval="3000"
+      img-width="1024"
+      img-height="400"
+      class="mb-3"
     >
-      <h3>{{ slide.title }}</h3>
-      <p>{{ slide.caption }}</p>
-    </BCarouselSlide>
-  </BCarousel>
-  <!-- </div> -->
+      <BCarouselSlide
+        v-for="slide in slides"
+        :key="slide.id"
+        :img-src="slide.image"
+      >
+        <h3>{{ slide.title }}</h3>
+        <p>{{ slide.caption }}</p>
+      </BCarouselSlide>
+    </BCarousel>
+  </div>
+  <div id="sliderMobile"></div>
 </template>
