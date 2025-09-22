@@ -8,7 +8,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const res = await $baseAPi.get("/v1/pages/slug/about")
+    const res = await $baseAPi.get("/v1/pages/slug/kebijakan-privasi")
     page.value = res.data.data
   } catch (err) {
     console.error("Gagal fetch page:", err)

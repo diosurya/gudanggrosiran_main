@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   ],
 
   site: {
-    url: 'https://staging.gudanggrosiran.com/'
+    url: 'https://gudanggrosiran.com/'
   },
 
   nitro: {
@@ -33,7 +33,7 @@ export default defineNuxtConfig({
         { name: "keywords", content: "grosir, ecommerce, belanja murah" }
       ],
       link: [
-        { rel: "icon", type: "image/x-icon", href: "https://be.gudanggrosiran.com/storage/main/favicon.ico" },
+        { rel: "icon", type: "image/x-icon", href: "https://admin.gudanggrosiran.com/storage/main/favicon.ico" },
         { 
           rel: "stylesheet", 
           href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" 

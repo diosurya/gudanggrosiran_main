@@ -22,14 +22,14 @@ const storeLocations: StoreLocation[] = [
   {
     id: 1,
     name: "Samarinda",
-    address: "Jl. Mulawarman No. 123, Samarinda, Kalimantan Timur",
-    phone: "(0541) 123-4567"
+    address: "Jl Kemakmuran no 71, Sungai Pindang Dalam, Kota Samarinda, Kalimantan Timur (75242)",
+    phone: "081130776712"
   },
   {
     id: 2,
     name: "Kupang",
-    address: "Jl. El Tari No. 456, Kupang, Nusa Tenggara Timur",
-    phone: "(0380) 987-6543"
+    address: " Jl. Terusan Timor Raya No.3, Oesapa, Kec. Klp. Lima, Kota Kupang, Nusa Tenggara Tim (85228)",
+    phone: "081130757550"
   }
 ]
 
@@ -158,10 +158,10 @@ watch(() => route.path, () => {
             <span class="small">Super Value Deals - Save more with coupons</span>
           </div>
           <div class="col-md-6 text-end d-none d-md-block">
-            <span class="dropdown-toggle cursor-pointer small">
+            <!-- <span class="dropdown-toggle cursor-pointer small">
               <i class="bi bi-globe me-1"></i>
               English
-            </span>
+            </span> -->
           </div>
         </div>
       </div>
@@ -214,32 +214,10 @@ watch(() => route.path, () => {
           <div class="col-4 col-lg-2">
             <div class="d-flex align-items-center justify-content-end gap-3">
               <!-- Mobile Search Toggle -->
-              <button 
-                class="btn btn-link d-lg-none p-0" 
-                @click="toggleMobileSearch"
-                type="button"
-              >
-                <i class="bi bi-search fs-5"></i>
-              </button>
-
-              <!-- Wishlist -->
-              <NuxtLink to="/wishlist" class="header-icon d-none d-sm-block">
-                <i class="bi bi-heart position-relative">
-                  <span class="badge bg-danger badge-sm">{{ wishlistCount }}</span>
-                </i>
-              </NuxtLink>
-
-              <!-- Account -->
-              <NuxtLink to="/account" class="header-icon d-none d-sm-block">
-                <i class="bi bi-person"></i>
-              </NuxtLink>
-
-              <!-- Cart -->
-              <NuxtLink to="#" class="header-icon">
-                <i class="bi bi-bag position-relative">
-                  <span class="badge bg-success badge-sm">{{ cartCount }}</span>
-                </i>
-              </NuxtLink>
+              <a href="#" class="text-black fs-5"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="text-black fs-5"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="text-black fs-5"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="text-black fs-5"><i class="bi bi-linkedin"></i></a>
 
               <!-- Mobile Menu Toggle -->
               <button 

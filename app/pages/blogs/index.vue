@@ -2,12 +2,13 @@
 import { ref, onMounted, computed } from "vue"
 import axios from "axios"
 import { useRoute } from "vue-router"
-const { $baseAPi, $baseUrlBE } = useNuxtApp()
+const { $baseAPi, $baseUrlBE, $BASE_URL_BE } = useNuxtApp()
 
 const blogs = ref<any[]>([])
 const latestPosts = ref<any[]>([])
 const loading = ref(true)
 const route = useRoute()
+const popularTags = ref<any[]>([])
 
 // Pagination
 const currentPage = ref(1)
@@ -28,7 +29,7 @@ useHead({
 const fetchBlogs = async (page: number = 1) => {
   loading.value = true
   try {
-    const res = await $baseAPi.get(`/landing/blogs?page=${page}&per_page=${perPage.value}`)
+    const res = await $baseAPi.get(`/v1/blogs?page=${page}&per_page=${perPage.value}`)
     if (res.data.success) {
       blogs.value = res.data.data
       
@@ -50,16 +51,28 @@ const fetchBlogs = async (page: number = 1) => {
   }
 }
 
+const fetchPopularTags = async () => {
+  try {
+    const res = await $baseAPi.get(`/v1/tags`)
+    if (res.data.success) {
+      popularTags.value = res.data.data
+    }
+  } catch (err) {
+    console.error("Gagal ambil tags:", err)
+  }
+}
+
+
 const changePage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
     fetchBlogs(page)
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 
 onMounted(() => {
   fetchBlogs()
+  fetchPopularTags()
 })
 
 // Format tanggal
@@ -87,10 +100,9 @@ const truncateText = (text: string, length: number = 150) => {
 
 // Get full image URL
 const getImageUrl = (imagePath: string | null) => {
-  if (!imagePath) {
-    return "https://via.placeholder.com/400x200/e3f2fd/1976d2?text=Blog+Image"
-  }
-  return `${$baseUrlBE.defaults.baseURL}/${imagePath.replace(/^\/+/, "")}`
+
+  // pastikan imagePath sudah sesuai dengan storage path
+  return `${$BASE_URL_BE}/storage/${imagePath}`
 }
 
 // Get visible pages for pagination
@@ -104,10 +116,15 @@ const getVisiblePages = () => {
   }
   return pages
 }
+
+const handleImageError = (event: Event) => {
+  const target = event.target as HTMLImageElement
+  target.src = 'https://via.placeholder.com/400x200/e3f2fd/1976d2?text=Blog+Image'
+}
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100  mb-5">
 
     <div class="container mx-auto px-4 py-6">
       <!-- Enhanced Header -->
@@ -175,7 +192,6 @@ const getVisiblePages = () => {
                       :alt="blog.title" 
                       class="card-img-top hover-zoom transition-transform"
                       style="height: 200px; object-fit: cover;"
-                      @error="$event.target.src = 'https://via.placeholder.com/400x200/e3f2fd/1976d2?text=Blog+Image'"
                     />
                   </NuxtLink>
                   <div class="position-absolute top-0 start-0 m-2">
@@ -184,28 +200,28 @@ const getVisiblePages = () => {
                     </span>
                   </div>
                   <div class="position-absolute top-0 end-0 m-2">
-                    <span class="badge bg-main bg-opacity-90 text-white">
+                    <!-- <span class="badge bg-main bg-opacity-90 text-white">
                       <i class="fas fa-clock me-1"></i>{{ formatReadingTime(blog.reading_time) }}
-                    </span>
+                    </span> -->
                   </div>
-                  <div class="position-absolute bottom-0 start-0 end-0 bg-gradient-to-t from-dark to-transparent p-3">
+                  <!-- <div class="position-absolute bottom-0 start-0 end-0 bg-gradient-to-t from-dark to-transparent p-3">
                     <div class="d-flex align-items-center text-white small">
                       <i class="fas fa-eye me-1"></i>
                       <span class="me-3">{{ blog.view_count || 0 }} views</span>
                       <i class="fas fa-star me-1"></i>
                       <span>{{ parseFloat(blog.average_rating).toFixed(1) }}</span>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
                 
                 <div class="card-body d-flex flex-column">
                   <div class="d-flex align-items-center justify-content-between text-muted small mb-2">
                     <div class="d-flex align-items-center">
-                      <i class="fas fa-calendar-alt me-1"></i>
+                      <i class="bi bi-calendar me-2"></i>
                       <span class="me-3">{{ formatDate(blog.created_at) }}</span>
                     </div>
                     <div class="d-flex align-items-center">
-                      <span class="badge bg-light text-dark">{{ blog.category_name }}</span>
+                      <span class="badge bg-light text-dark"></span>
                     </div>
                   </div>
                   
@@ -216,20 +232,21 @@ const getVisiblePages = () => {
                   </NuxtLink>
                   
                   <p class="card-text text-muted flex-grow-1 line-clamp-3">
-                    {{ blog.excerpt || truncateText(blog.content) }}
+                    {{ blog.excerpt }}
                   </p>
                   
                   <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
                     <NuxtLink 
                       :to="`/blogs/${blog.slug}`" 
-                      class="btn btn-main btn-sm fw-medium hover-shadow-sm transition-all text-white"
+                      class="btn btn-main btn-sm fw-medium hover-shadow-sm transition-all"
+                      style="color: #e62129 !important;"
                     >
-                      <i class="fas fa-arrow-right me-1"></i>
+                      <i class="bi bi-arrow-right-short me-1"></i>
                       Baca Selengkapnya
                     </NuxtLink>
                     <div class="d-flex align-items-center text-muted small">
-                      <i class="fas fa-share-alt me-1"></i>
-                      <span>{{ blog.share_count || 0 }}</span>
+                      <i class="bi bi-person me-1"></i>
+                      <span>{{ blog.author_name }}</span>
                     </div>
                   </div>
                 </div>
@@ -265,7 +282,7 @@ const getVisiblePages = () => {
             <div class="card border-0 shadow-sm mb-4">
               <div class="card-body bg-white border-0 pb-0">
                 <h6 class="fw-bold text-dark mb-0">
-                  <i class="fas fa-fire text-danger me-2"></i>Latest Posts
+                  Latest Posts
                 </h6>
               </div>
               <div class="card-body pt-3">
@@ -281,12 +298,11 @@ const getVisiblePages = () => {
                         class="rounded shadow-sm hover-lift-sm transition-transform"
                         style="width: 60px; height: 45px; object-fit: cover;"
                         :alt="post.title"
-                        @error="$event.target.src = 'https://via.placeholder.com/60x45/e3f2fd/1976d2?text=Blog'"
                       />
                     </NuxtLink>
                     <div class="flex-grow-1">
                       <p class="text-muted small mb-1">
-                        <i class="fas fa-clock me-1"></i>{{ formatDate(post.created_at) }}
+                        <i class="bi bi-calendar me-2"></i>{{ formatDate(post.created_at) }}
                       </p>
                       <NuxtLink 
                         :to="`/blogs/${post.slug}`" 
@@ -294,39 +310,34 @@ const getVisiblePages = () => {
                       >
                         {{ post.title }}
                       </NuxtLink>
-                      <div class="d-flex align-items-center mt-1 gap-2">
-                        <span class="badge bg-light text-muted small">
-                          {{ formatReadingTime(post.reading_time) }}
-                        </span>
-                        <span class="text-muted small">
-                          <i class="fas fa-eye me-1"></i>{{ post.view_count || 0 }}
-                        </span>
-                      </div>
+                     
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Popular Tags -->
+           <!-- Popular Tags -->
             <div class="card border-0 shadow-sm mb-4">
               <div class="card-body bg-white border-0 pb-0">
                 <h6 class="fw-bold text-dark mb-0">
-                  <i class="fas fa-tags text-success me-2"></i>Popular Tags
+                  Popular Tags
                 </h6>
               </div>
               <div class="card-body pt-3">
                 <div class="d-flex flex-wrap gap-2">
-                  <span 
-                    v-for="tag in ['Anak Kos','Tips','Rekomendasi','Lifestyle','Praktis','Hemat']" 
-                    :key="tag" 
+                  <NuxtLink
+                    v-for="tag in popularTags"
+                    :key="tag.id"
+                    :to="`/blogs/tag/${tag.slug}`"
                     class="badge bg-light text-dark border hover-bg-main hover-text-main transition-all cursor-pointer px-3 py-2"
                   >
-                    #{{ tag }}
-                  </span>
+                    {{ tag.name }}
+                  </NuxtLink>
                 </div>
               </div>
             </div>
+
 
             <!-- Newsletter -->
             <!-- <div class="card border-0 shadow-sm bg-gradient-main text-white">

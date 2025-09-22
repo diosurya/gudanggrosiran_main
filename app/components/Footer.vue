@@ -88,16 +88,7 @@ onUnmounted(() => {
         <p class="mb-0 small">
           © 2025 Gudang Grosiran. All rights reserved.
         </p>
-        <p class="mb-0 small">
-          Crafted by
-          <a
-            href="https://github.com/diosurya"
-            target="_blank"
-            class="text-main text-decoration-none fw-bold"
-          >
-            Dio Putra
-          </a>
-        </p>
+        
       </div>
     </div>
 

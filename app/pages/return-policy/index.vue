@@ -4,8 +4,8 @@ const { $baseAPi } = useNuxtApp()
 const page = ref<any>(null)
 
 try {
-  const res = await $baseAPi.get("/pages/slug/return-policy")
-  page.value = res.data
+  const res = await $baseAPi.get("/v1/pages/slug/return-policy")
+  page.value = res.data.data
 } catch (err) {
   console.error("Gagal fetch page:", err)
 }

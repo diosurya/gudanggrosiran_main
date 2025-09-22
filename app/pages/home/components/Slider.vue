@@ -1,14 +1,43 @@
 <script setup lang="ts">
-const slides = [
-  { id: 1, image: "	https://be.gudanggrosiran.com/storage/general/gkjk1-1.png", title: "Kacamata Selam", caption: "Diskon 34%" },
-  { id: 2, image: "https://picsum.photos/1200/400?1", title: "Cuci Gudang", caption: "Diskon 79%" },
-  { id: 3, image: "https://picsum.photos/1200/400?2", title: "Produk Terlaris", caption: "10RB++ Terjual" }
-]
+import { ref, onMounted } from "vue"
+const { $baseAPi, $BASE_URL_BE } = useNuxtApp()
+
+// state
+const slides = ref<any[]>([])
+const loading = ref(true)
+
+// fetch sliders
+const fetchSliders = async () => {
+  loading.value = true
+  try {
+    const res = await $baseAPi.get("/v1/sliders")
+    if (res.data.success) {
+      slides.value = res.data.data.map((item: any) => ({
+        id: item.id,
+        image: `${$BASE_URL_BE}/storage/${item.path}`,
+        title: item.title,
+        caption: item.caption,
+        link: item.link
+      }))
+    }
+  } catch (err) {
+    console.error("Gagal ambil sliders:", err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchSliders()
+})
 </script>
 
 <template>
+  <!-- Slider Desktop -->
   <div id="sliderDkstp">
+    <!-- Carousel -->
     <BCarousel
+      v-if="!loading && slides.length > 0"
       id="carousel-fade"
       fade
       indicators
@@ -28,6 +57,56 @@ const slides = [
         <p>{{ slide.caption }}</p>
       </BCarouselSlide>
     </BCarousel>
+
+    <!-- Skeleton -->
+    <div v-else class="skeleton-slider mb-3"></div>
   </div>
-  <div id="sliderMobile"></div>
+
+  <!-- Slider Mobile (kosong / custom konten) -->
+  <div id="sliderMobile">
+    <!-- contoh kalau mau isi teks khusus -->
+    <!-- <p class="text-center">Selamat datang di mobile site!</p> -->
+  </div>
 </template>
+
+<style scoped>
+/* Skeleton Slider */
+.skeleton-slider {
+  width: 100%;
+  height: 400px;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive: sembunyikan slider desktop di mobile */
+#sliderMobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #sliderDkstp {
+    display: none;
+  }
+  #sliderMobile {
+    display: block;
+  }
+}
+
+/* Responsive height */
+@media (max-width: 768px) {
+  .skeleton-slider {
+    height: 200px;
+  }
+}
+</style>

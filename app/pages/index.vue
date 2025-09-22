@@ -2,6 +2,9 @@
 import Features from './home/components/Features.vue';
 import Slider from './home/components/Slider.vue';
 import BestSeller from './home/components/BestSeller.vue';
+import RecomendedProduct from './home/components/RecomendedProduct.vue';
+import PenawaranHariIni from './home/components/PenawaranHariIni.vue';
+import LatestArticles from './home/components/LatestArticles.vue';
 
 useHead({
   title: "Gudang Grosiran - Belanja Murah",
@@ -19,12 +22,15 @@ useHead({
   <div class="container my-3">
     <Slider />
     <Features />
+    <RecomendedProduct />
+    <PenawaranHariIni />
+    <LatestArticles />
 
-     <BestSeller 
+     <!-- <BestSeller 
       title="Best Seller"
       subtitle="A virtual assistant collects the products from your list"
       :limit="6"
       api-endpoint="/api/products/bestsellers"
-    />
+    /> -->
   </div>
 </template>

@@ -15,6 +15,37 @@ body {
   color: #e62129;
 }
 
+.current-price {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.btn-outline-main{
+    color: #e62129;
+    background-color:  #fff;
+    border-color:  #e62129;
+}
+
+.btn-outline-main:hover {
+    color: #fff;
+    background-color:  #e62129;
+    border-color:  #e62129;
+}
+
+.btn-main{
+    color: #fff;
+    background-color:  #e62129;
+    border-color:  #e62129;
+}
+
+.btn-main:hover{
+    color: #e62129;
+    background-color:  #fff;
+    border-color:  #e62129;
+}
+
+
 .bg-main{
   background-color: #e62129;
 }

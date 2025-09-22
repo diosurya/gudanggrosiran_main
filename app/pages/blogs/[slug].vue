@@ -3,33 +3,22 @@ import { ref, computed, onMounted } from "vue"
 import { useRoute } from "vue-router"
 
 const route = useRoute()
-const { $baseAPi, $baseUrlBE } = useNuxtApp()
+const { $baseAPi, $baseUrlBE, $BASE_URL_BE } = useNuxtApp()
 
 
 // ---- Helpers
-function getImageUrl(item: any) {
-  if (!item) return "https://via.placeholder.com/900x480/e3f2fd/1976d2?text=Blog"
+const getImageUrl = (imagePath: string | null) => {
 
-  const raw =
-    item.image_url ||
-    item.cover_image ||
-    item.images?.find((i: any) => i.is_cover === "1")?.path ||
-    item.images?.[0]?.path ||
-    null
-
-  if (!raw) return "https://via.placeholder.com/900x480/e3f2fd/1976d2?text=Blog"
-
-  return String(raw).startsWith("http")
-    ? raw
-    : `${$baseUrlBE}${raw}`
+  // pastikan imagePath sudah sesuai dengan storage path
+  return `${$BASE_URL_BE}/storage/${imagePath}`
 }
 
 // ---- API calls pakai axios
 const apiDetail = (slug: string | string[]) =>
-  $baseAPi.get(`/landing/blogs/${slug}`).then(res => res.data)
+  $baseAPi.get(`/v1/blogs/${slug}`).then(res => res.data)
 
 const apiList = () =>
-  $baseAPi.get("/blogs").then(res => res.data)
+  $baseAPi.get("/v1/blogs").then(res => res.data)
 
 // ---- SSR/SSG fetch (SEO aman)
 const { data: detailRes } = await useAsyncData(
@@ -58,14 +47,12 @@ onMounted(async () => {
   }
 })
 
-// Cover image computed
-const coverUrl = computed(() => getImageUrl(post.value))
 
 // ---- SEO
 useHead(() => {
   const title = post.value?.meta_title || post.value?.title || "Gudang Grosiran - Blog"
   const desc = post.value?.meta_description || post.value?.excerpt || ""
-  const img = coverUrl.value
+  const img = post.value?.image_cover
   const url = `https://gudanggrosiran.com/blogs/${post.value?.slug || route.params.slug}`
 
   return {
@@ -107,18 +94,17 @@ const tags = computed<string[]>(() =>
 
               <article v-else class="card border-0 shadow-sm overflow-hidden">
                 <!-- Cover -->
-                <img :src="coverUrl" :alt="post.title" class="img-fluid w-100" style="max-height: 420px; object-fit: cover;">
+                <img 
+                  :src="getImageUrl(post.cover_image)" 
+                  :alt="post.title" 
+                  class="img-fluid w-100" style="max-height: 420px; object-fit: cover;">
                 <div class="card-body">
                   <!-- Title & Meta -->
                   <h1 class="h3 fw-bold mb-2">{{ post.title }}</h1>
                   <div class="text-muted small mb-3">
-                    <i class="fas fa-calendar-alt me-1"></i>{{ post.created_at }}
+                    <i class="bi bi-calendar me-2"></i>{{ post.created_at }}
                     <span class="mx-2">•</span>
-                    <i class="fas fa-folder me-1"></i>{{ post.category_name || 'General' }}
-                    <span class="mx-2" v-if="post.reading_time && post.reading_time !== '0'">•</span>
-                    <span v-if="post.reading_time && post.reading_time !== '0'">
-                      <i class="fas fa-clock me-1"></i>{{ post.reading_time }} min read
-                    </span>
+                    <i class="bi bi-person me-2"></i>{{ post.author_name || 'General' }}
                   </div>
 
                   <!-- Content -->
@@ -132,17 +118,16 @@ const tags = computed<string[]>(() =>
               <!-- Latest Posts -->
               <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-0">
-                  <h6 class="fw-bold mb-0"><i class="fas fa-fire text-danger me-2"></i>Latest Posts</h6>
+                  <h6 class="fw-bold mb-0">Latest Posts</h6>
                 </div>
                 <div class="card-body">
                   <div v-for="item in latest" :key="item.id" class="d-flex align-items-start mb-3">
                     <NuxtLink :to="`/blogs/${item.slug}`" class="me-3 flex-shrink-0">
                       <img
-                        :src="getImageUrl(item)"
+                        :src="getImageUrl(item.cover_image)"
                         :alt="item.title"
                         class="rounded"
                         style="width: 72px; height: 54px; object-fit: cover;"
-                        @error="$event.target.src='https://via.placeholder.com/72x54/e3f2fd/1976d2?text=Blog'"
                       />
                     </NuxtLink>
                     <div class="flex-grow-1">
@@ -150,7 +135,7 @@ const tags = computed<string[]>(() =>
                         <div class="line-clamp-2">{{ item.title }}</div>
                       </NuxtLink>
                       <div class="text-muted small mt-1">
-                        <i class="fas fa-clock me-1"></i>{{ item.created_at }}
+                        <i class="bi bi-calendar me-2"></i>{{ item.created_at }}
                       </div>
                     </div>
                   </div>
@@ -160,7 +145,7 @@ const tags = computed<string[]>(() =>
               <!-- Tags -->
               <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-0">
-                  <h6 class="fw-bold mb-0"><i class="fas fa-tags text-success me-2"></i>Popular Tags</h6>
+                  <h6 class="fw-bold mb-0">Popular Tags</h6>
                 </div>
                 <div class="card-body">
                   <div class="d-flex flex-wrap gap-2">

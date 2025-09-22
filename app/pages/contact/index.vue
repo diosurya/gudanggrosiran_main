@@ -33,8 +33,7 @@ useHead({
 
 <template>
   <div class="container mb-5">
-    <h1>{{ page?.title }}</h1>
-    <p>Under Contruction.</p>
+    <h1>Kontak Kami</h1>
 
   </div>
 </template>
