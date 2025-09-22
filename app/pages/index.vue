@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Features from './home/components/Features.vue';
-import Slider from './home/components/Slider.vue';
-import BestSeller from './home/components/BestSeller.vue';
-import RecomendedProduct from './home/components/RecomendedProduct.vue';
-import PenawaranHariIni from './home/components/PenawaranHariIni.vue';
-import LatestArticles from './home/components/LatestArticles.vue';
+import Features from '../components/home/Features.vue';
+import Slider from '../components/home/Slider.vue';
+import BestSeller from '@/components/home/BestSeller.vue';
+import RecomendedProduct from '@/components/home/RecomendedProduct.vue';
+import PenawaranHariIni from '@/components/home/PenawaranHariIni.vue';
+import LatestArticles from '@/components/home/LatestArticles.vue';
 
 useHead({
   title: "Gudang Grosiran - Belanja Murah",
