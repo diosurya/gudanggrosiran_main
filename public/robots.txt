@@ -1,0 +1,50 @@
+# ===== ALLOW AI BOTS =====
+# ChatGPT user browsing
+User-agent: ChatGPT-User
+User-agent: ChatGPT-User/2.0
+Allow: /
+
+# GPTBot (OpenAI model training)
+User-agent: GPTBot
+Allow: /
+
+# Claude AI (Anthropic)
+User-agent: anthropic-ai
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: claude-web
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Google Extended (Google AI)
+User-agent: Google-Extended
+Allow: /
+
+# Izinkan AhrefsBot
+User-agent: AhrefsBot
+Allow: /
+
+
+# ===== BLOCK FOR ALL BOTS (including search engines) =====
+User-agent: *
+Disallow: /login
+Disallow: /admin
+Disallow: /register
+Disallow: /password/reset
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders/tracking
+Disallow: /wishlist
+Disallow: /compare
+Disallow: /customer/overview
+Disallow: /customer/address
+Disallow: /customer/change-password
+Disallow: /customer/downloads
+Disallow: /customer/edit-account
+Disallow: /customer/order-returns
+Disallow: /customer/orders
+Disallow: /customer/product-reviews

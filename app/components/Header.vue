@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-
 interface StoreLocation {
   id: number
   name: string
@@ -98,7 +97,7 @@ const loadSavedLocation = () => {
         selectedLocation.value = JSON.parse(savedLocation)
       } catch (error) {
         console.error('Error parsing saved location:', error)
-        selectedLocation.value = storeLocations[1] 
+        selectedLocation.value = storeLocations[1]
       }
     } else {
       detectUserLocation()
