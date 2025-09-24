@@ -103,10 +103,17 @@ ul li a:hover {
   color: #e62129 !important;
 }
 
+.padding-mobile{
+  padding: 0;
+}
+
 @media (max-width: 991px) {
   .hide-mobile { display: none !important;}
   .social-header {
     display: none !important;
+  }
+  .padding-mobile {
+    padding-top:2 rem
   }
 }
 

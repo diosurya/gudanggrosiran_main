@@ -27,13 +27,13 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Gudang Grosiran - E-commerce",
+      title: "Gudang Grosiran - Belanja Grosir, Kualitas Premium",
       meta: [
-        { name: "description", content: "Belanja grosir murah dan terpercaya" },
-        { name: "keywords", content: "grosir, ecommerce, belanja murah" }
+        { name: "description", content: "Belanja Grosir, Kualitas Premium" },
+        { name: "keywords", content: "grosir, ecommerce, belanja murah, kualitas premium, belanja partai" }
       ],
       link: [
-        { rel: "icon", type: "image/x-icon", href: "https://admin.gudanggrosiran.com/storage/main/favicon.ico" },
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
         { 
           rel: "stylesheet", 
           href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" 

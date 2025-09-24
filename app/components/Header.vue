@@ -154,7 +154,7 @@ watch(() => route.path, () => {
       <div class="container">
         <div class="row">
           <div class="col-md-12 col-12 text-center text-md-start">
-            <span class="small">Gudang Grosiran - Belanja Grosir, Kualitas Premium</span>
+            <span class="small">Pusat Grosir - <strong>Belanja Grosir, Kualitas Premium</strong></span>
           </div>
           <!-- <div class="col-md-6 text-end d-none d-md-block"> -->
             <!-- <span class="dropdown-toggle cursor-pointer small">
@@ -224,7 +224,7 @@ watch(() => route.path, () => {
                 @click="toggleMobileMenu"
                 type="button"
               >
-                <i class="bi" :class="isMobileMenuOpen ? 'bi-x-lg' : 'bi-list'" style="font-size: 1.5rem;"></i>
+                <i class="bi text-main" :class="isMobileMenuOpen ? 'bi-x-lg' : 'bi-list'" style="font-size: 1.5rem;"></i>
               </button>
             </div>
           </div>
@@ -283,7 +283,7 @@ watch(() => route.path, () => {
       <div class="mobile-menu-header p-3 border-bottom">
         <h5 class="mb-0">Menu</h5>
         <button 
-          class="btn btn-link p-0" 
+          class="btn btn-link p-0 text-main" 
           @click="closeMobileMenu"
           type="button"
         >
@@ -293,12 +293,12 @@ watch(() => route.path, () => {
       
       <div class="mobile-menu-content">
         <!-- Account Section -->
-        <div class="p-3 border-bottom">
+        <!-- <div class="p-3 border-bottom">
           <NuxtLink to="/account" class="d-flex align-items-center text-decoration-none" @click="closeMobileMenu">
             <i class="bi bi-person-circle fs-4 me-3"></i>
             <span>My Account</span>
           </NuxtLink>
-        </div>
+        </div> -->
 
         <!-- Main Navigation -->
         <ul class="list-unstyled mb-0">
@@ -315,7 +315,7 @@ watch(() => route.path, () => {
         </ul>
 
         <!-- Bottom Actions -->
-        <div class="mobile-menu-actions p-3 border-top mt-3">
+        <!-- <div class="mobile-menu-actions p-3 border-top mt-3">
           <NuxtLink to="/wishlist" class="d-flex align-items-center mb-3 text-decoration-none" @click="closeMobileMenu">
             <i class="bi bi-heart fs-5 me-3"></i>
             <span>Wishlist</span>
@@ -327,7 +327,7 @@ watch(() => route.path, () => {
             <span>Shopping Cart</span>
             <span class="badge bg-success ms-auto">{{ cartCount }}</span>
           </NuxtLink>
-        </div>
+        </div> -->
       </div>
     </div>
 

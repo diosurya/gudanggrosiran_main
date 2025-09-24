@@ -19,10 +19,10 @@ const perPage = ref(12)
 useHead({
   title: "Blog Terbaru dan Artikel Menarik - Gudang Grosiran",
   meta: [
-    { name: "description", content: "Blog Terbaru dan Artikel Menarik." },
-    { name: "keywords", content: "tentang gudang grosiran, ecommerce grosir" },
-    { property: "og:title", content: "Tentang Gudang Grosiran" },
-    { property: "og:description", content: "Blog Terbaru dan Artikel Menarik" },
+    { name: "description", content: "Blog Terbaru dan Artikel Menarik Gudang Grosiran" },
+    { name: "keywords", content: "artikel gudang grosiran, ecommerce, grosir, belanja murah, kualitas premium, belanja partai" },
+    { property: "og:title", content: "Blog Terbaru dan Artikel Menarik Gudang Grosiran" },
+    { property: "og:description", content: "Blog Terbaru dan Artikel Menarik Gudang Grosiran" },
   ]
 })
 

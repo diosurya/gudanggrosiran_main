@@ -8,12 +8,12 @@ import LatestArticles from '@/components/home/LatestArticles.vue';
 import ImageHome from '@/components/home/ImageHome.vue';
 
 useHead({
-  title: "Gudang Grosiran - Belanja Murah",
+  title: "Gudang Grosiran - Belanja Grosir, Kualitas Premium",
   meta: [
-    { name: "description", content: "Belanja grosir murah dan terpercaya" },
-    { name: "keywords", content: "grosir, ecommerce, belanja murah" },
-    { property: "og:title", content: "Gudang Grosiran - Home" },
-    { property: "og:description", content: "Belanja grosir murah dan terpercaya" },
+    { name: "description", content: "Belanja grosir murah, terpercaya dan kualitas premium" },
+    { name: "keywords", content: "grosir, ecommerce, belanja murah, kualitas premium, belanja partai" },
+    { property: "og:title", content: "Gudang Grosiran - Belanja Grosir, Kualitas Premium" },
+    { property: "og:description", content: "Belanja grosir murah, terpercaya dan kualitas premium" },
     { property: "og:type", content: "website" },
   ]
 })
@@ -25,7 +25,7 @@ useHead({
     <Features />
     <hr class="normal ">
     <RecomendedProduct />
-    <hr class="normal ">
+    <hr class="normal hide-mobile">
     <ImageHome />
     <hr class="normal ">
     <PenawaranHariIni />

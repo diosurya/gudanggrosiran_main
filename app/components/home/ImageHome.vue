@@ -1,5 +1,5 @@
 <template>
-    <section class="main-homepage_banner-sisip__czPR9 margin-top-m">
+    <section class="main-homepage_banner-sisip__czPR9 margin-top-m hide-mobile">
         <div class="main-homepage_content__Me13x">
             <a href="javascript:void(0)">
                 <span class="custom-lazy-load-image  lazy-load-image-background  lazy-load-image-loaded" style="color: transparent; display: flex; position: relative;">

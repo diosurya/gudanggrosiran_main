@@ -1,10 +1,10 @@
 <template>
   <nav 
     v-if="showBreadcrumb" 
-    class="mb-3 py-4" 
+    class="mb-3 py-5 " 
     aria-label="breadcrumb"
   >
-    <section class="bg-breadcrumb shadow-sm">
+    <section class="bg-breadcrumb shadow-sm hide-mobile">
       <div class="container">
         <ol class="breadcrumb bg-breadcrumb px-4 py-3 mb-0">
           <li 
