@@ -50,12 +50,12 @@
               </div>
               
               <!-- Featured Badge -->
-              <div 
+              <!-- <div 
                 v-if="product.is_featured" 
                 class="featured-badge position-absolute"
               >
-                <i class="fas fa-star"></i>
-              </div>
+                <i class="bi bi-star"></i>
+              </div> -->
             </div>
 
             <!-- Product Info -->
