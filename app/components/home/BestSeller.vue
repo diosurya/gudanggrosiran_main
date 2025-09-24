@@ -175,7 +175,7 @@ const wishlist = ref([])
 // jumlah produk per halaman
 const perPage = computed(() => props.limit)
 
-// ⬇️ Fallback data generator (dummy random)
+// Fallback data generator (dummy random)
 const getFallbackData = (count = 8, startId = 1) => {
   return Array.from({ length: count }).map((_, i) => ({
     id: startId + i,
@@ -190,7 +190,7 @@ const getFallbackData = (count = 8, startId = 1) => {
   }))
 }
 
-// ⬇️ Pura-pura fetch, padahal isi dummy
+// isi dummy
 const fetchProducts = async (page = 1, append = false) => {
   try {
     if (page === 1) {
@@ -200,7 +200,6 @@ const fetchProducts = async (page = 1, append = false) => {
       loadingMore.value = true
     }
 
-    // ❌ API dimatiin, langsung pakai dummy
     const newProducts = getFallbackData(perPage.value, (page - 1) * perPage.value + 1)
 
     if (append) {
@@ -354,7 +353,6 @@ onMounted(() => {
   margin-right: 2px;
 }
 
-/* Hover overlay - Same as ProductBox */
 .hover-overlay {
   position: absolute;
   top: 0;
@@ -390,7 +388,6 @@ onMounted(() => {
   transform: scale(1.05);
 }
 
-/* Action buttons - Same as ProductBox */
 .product-actions {
   position: absolute;
   bottom: 15px;

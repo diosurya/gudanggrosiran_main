@@ -203,7 +203,6 @@ const fetchProducts = async (page = 1, append = false) => {
       loadingMore.value = true
     }
 
-    // Build API URL with parameters
     const params = new URLSearchParams({
       page: page.toString(),
       limit: perPage.value.toString(),

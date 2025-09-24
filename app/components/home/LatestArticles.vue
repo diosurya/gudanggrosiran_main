@@ -178,7 +178,6 @@ const getImageUrl = (imagePath: string | null) => {
   flex-grow: 1;
 }
 
-/* Skeleton Loader */
 .article-skeleton {
   background: #fff;
   border: 1px solid #e9ecef;

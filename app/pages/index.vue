@@ -5,6 +5,7 @@ import BestSeller from '@/components/home/BestSeller.vue';
 import RecomendedProduct from '@/components/home/RecomendedProduct.vue';
 import PenawaranHariIni from '@/components/home/PenawaranHariIni.vue';
 import LatestArticles from '@/components/home/LatestArticles.vue';
+import ImageHome from '@/components/home/ImageHome.vue';
 
 useHead({
   title: "Gudang Grosiran - Belanja Murah",
@@ -22,8 +23,13 @@ useHead({
   <div class="container my-3">
     <Slider />
     <Features />
+    <hr class="normal ">
     <RecomendedProduct />
+    <hr class="normal ">
+    <ImageHome />
+    <hr class="normal ">
     <PenawaranHariIni />
+    <hr class="normal ">
     <LatestArticles />
 
      <!-- <BestSeller 

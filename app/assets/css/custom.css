@@ -105,4 +105,12 @@ ul li a:hover {
 
 @media (max-width: 991px) {
   .hide-mobile { display: none !important;}
+  .social-header {
+    display: none !important;
+  }
 }
+
+hr.normal {
+    border-top: 1px solid #b4b4b4;
+}
+

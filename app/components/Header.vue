@@ -153,15 +153,15 @@ watch(() => route.path, () => {
     <div class="topbar bg-light py-1 border-bottom" :class="{ 'd-none': isScrolled }">
       <div class="container">
         <div class="row">
-          <div class="col-md-6 col-12 text-center text-md-start">
-            <span class="small">Super Value Deals - Save more with coupons</span>
+          <div class="col-md-12 col-12 text-center text-md-start">
+            <span class="small">Gudang Grosiran - Belanja Grosir, Kualitas Premium</span>
           </div>
-          <div class="col-md-6 text-end d-none d-md-block">
+          <!-- <div class="col-md-6 text-end d-none d-md-block"> -->
             <!-- <span class="dropdown-toggle cursor-pointer small">
               <i class="bi bi-globe me-1"></i>
               English
             </span> -->
-          </div>
+          <!-- </div> -->
         </div>
       </div>
     </div>
@@ -185,7 +185,7 @@ watch(() => route.path, () => {
            <div class="location-box">
                 <button class="btn btn-sm location-button" @click="openLocationModal">
                     <span class="location-arrow">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                      <i class="bi bi-shop" style="font-size: 20px; color:#333;"></i>
                     </span>
                     <span class="locat-name">{{ selectedLocation.name }}</span>
                     <i class="fa-solid fa-angle-down"></i>
@@ -198,7 +198,7 @@ watch(() => route.path, () => {
               <div class="input-group">
                 <input
                   v-model="searchQuery"
-                  placeholder="Search for products..."
+                  placeholder="Cari produk"
                   class="form-control border-end-0"
                   type="search"
                 />
@@ -213,10 +213,10 @@ watch(() => route.path, () => {
           <div class="col-4 col-lg-2">
             <div class="d-flex align-items-center justify-content-end gap-3">
               <!-- Mobile Search Toggle -->
-              <a href="#" class="text-black fs-5"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="text-black fs-5"><i class="bi bi-instagram"></i></a>
-              <a href="#" class="text-black fs-5"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="text-black fs-5"><i class="bi bi-linkedin"></i></a>
+              <a href="#" class="text-black social-header fs-5"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="text-black social-header fs-5"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="text-black social-header fs-5"><i class="bi bi-twitter"></i></a>
+              <a href="#" class="text-black social-header fs-5"><i class="bi bi-linkedin"></i></a>
 
               <!-- Mobile Menu Toggle -->
               <button 
@@ -509,13 +509,6 @@ watch(() => route.path, () => {
 }
 
 /* Search form */
-.search-form .form-control {
-  border-radius: 25px 0 0 25px;
-}
-
-.search-form .btn {
-  border-radius: 0 25px 25px 0;
-}
 
 /* Navigation links */
 .nav-link {

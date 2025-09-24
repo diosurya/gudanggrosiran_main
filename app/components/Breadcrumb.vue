@@ -1,5 +1,4 @@
 <template>
-  <!-- Breadcrumb hanya tampil jika bukan halaman home -->
   <nav 
     v-if="showBreadcrumb" 
     class="mb-3 py-4" 

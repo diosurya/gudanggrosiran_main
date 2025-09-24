@@ -62,10 +62,7 @@ onMounted(() => {
     <div v-else class="skeleton-slider mb-3"></div>
   </div>
 
-  <!-- Slider Mobile (kosong / custom konten) -->
   <div id="sliderMobile">
-    <!-- contoh kalau mau isi teks khusus -->
-    <!-- <p class="text-center">Selamat datang di mobile site!</p> -->
   </div>
 </template>
 
@@ -89,7 +86,6 @@ onMounted(() => {
   }
 }
 
-/* Responsive: sembunyikan slider desktop di mobile */
 #sliderMobile {
   display: none;
 }

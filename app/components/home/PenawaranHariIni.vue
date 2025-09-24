@@ -226,7 +226,6 @@ const updateSlidesPerView = () => {
   const gap = 15
 
   if (window.innerWidth >= 992) {
-    // ✅ Desktop tampil maksimal 3 produk
     slidesPerView.value = Math.min(3, products.value.length)
   } else if (window.innerWidth >= 768) {
     slidesPerView.value = Math.min(2, products.value.length)
@@ -236,7 +235,6 @@ const updateSlidesPerView = () => {
 
   slideWidth.value = (containerWidth - (gap * (slidesPerView.value - 1))) / slidesPerView.value
 
-  // Reset posisi slider kalau melebihi batas
   if (currentSlide.value > maxSlide.value) {
     currentSlide.value = maxSlide.value
   }
