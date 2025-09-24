@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Features from '../components/home/Features.vue';
 import Slider from '../components/home/Slider.vue';
-import BestSeller from '@/components/home/BestSeller.vue';
+import PromoSection from '@/components/home/PromoSection.vue';
 import RecomendedProduct from '@/components/home/RecomendedProduct.vue';
 import PenawaranHariIni from '@/components/home/PenawaranHariIni.vue';
 import LatestArticles from '@/components/home/LatestArticles.vue';
@@ -29,6 +29,8 @@ useHead({
     <ImageHome />
     <hr class="normal ">
     <PenawaranHariIni />
+    <hr class="normal ">
+    <PromoSection />
     <hr class="normal ">
     <LatestArticles />
 

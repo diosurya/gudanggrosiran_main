@@ -1,5 +1,5 @@
 <template>
-  <div class="penawaran-hari-ini py-5 my-5">
+  <div class="penawaran-hari-ini my-5">
     <div class="container-fluid p-0">
       <div class="penawaran-wrapper">
         <!-- Banner Section (Left) -->
@@ -102,7 +102,7 @@
                 class="slider-button slider-button-next"
                 type="button"
               >
-                <i class="fas fa-chevron-right"></i>
+                <i class="bi bi-chevron-right"></i>
               </button>
             </div>
           </div>
@@ -570,7 +570,7 @@ onUnmounted(() => {
 }
 
 .slider-button-next {
-  right: -15px;
+  right: 0px;
 }
 
 .slider-button i {

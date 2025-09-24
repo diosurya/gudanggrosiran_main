@@ -46,7 +46,7 @@ const getImageUrl = (imagePath: string | null) => {
 </script>
 
 <template>
-  <div class="latest-articles container my-5 py-5">
+  <div class="latest-articles container my-5">
     <h2 class="section-title mb-4 text-center">Artikel Terbaru</h2>
 
     <!-- Skeleton Loading -->

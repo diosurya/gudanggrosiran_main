@@ -1,5 +1,5 @@
 <template>
-    <section class="featured section-padding my-5">
+    <section class="featured section-padding my-5 hide-mobile">
         <div class="container">
             <div class="row">
                 <div class="col-md-3 mt-2">

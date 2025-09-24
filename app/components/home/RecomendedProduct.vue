@@ -1,18 +1,18 @@
 <template>
-  <div class="rekomendasi-product py-5 my-5">
+  <div class="rekomendasi-product my-5">
     <!-- Header dengan Tabs -->
     <div class="section-header mb-4">
       <div class="d-flex align-items-center justify-content-between flex-wrap">
-        <h3 class="section-title mb-0">{{ currentSectionLabel }}</h3>
+        <h3 class="section-title mb-3">{{ currentSectionLabel }}</h3>
         
         <!-- Tab Navigation -->
-        <div class="tab-navigation d-flex gap-2 mt-2 mt-md-0">
+        <div class="tab-navigation gap-2 mt-2 mt-md-0">
           <button
             v-for="section in predefinedSections"
             :key="section.value"
             @click="changeSection(section.value)"
             :class="[
-              'btn',
+              'btn me-2',
               activeSection === section.value ? 'btn-main' : 'btn-outline-main',
               'btn-sm'
             ]"
