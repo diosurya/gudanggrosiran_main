@@ -33,6 +33,16 @@ body {
     border-color:  #e62129;
 }
 
+.btn-outline-main-black{
+    color: #6c757d;
+    background-color:  transparent;
+    border: 1px solid #6c757d !important;
+}
+.btn-outline-main-black:hover {
+  background: #6c757d;
+  color: white;
+}
+
 .btn-main{
     color: #fff;
     background-color:  #e62129;
@@ -103,25 +113,11 @@ ul li a:hover {
   color: #e62129 !important;
 }
 
-.padding-mobile{
-  padding: 0;
-}
-
 @media (max-width: 991px) {
   .hide-mobile { display: none !important;}
-  .social-header {
-    display: none !important;
-  }
-  .padding-mobile {
-    padding-top:2 rem
-  }
+  .social-header { display: none !important;}
 }
 
-hr.normal {
-    border-top: 1px solid #b4b4b4;
+.text-main-thin {
+    color: #ffbdc0;
 }
-
-.text-main-thin{
-  color:#ffbdc0;
-}
-

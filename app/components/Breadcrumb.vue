@@ -1,7 +1,7 @@
 <template>
   <nav 
     v-if="showBreadcrumb" 
-    class="mb-3 py-5 " 
+    class="mb-3 py-4" 
     aria-label="breadcrumb"
   >
     <section class="bg-breadcrumb shadow-sm hide-mobile">

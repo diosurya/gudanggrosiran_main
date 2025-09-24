@@ -36,9 +36,12 @@ const isScrolled = ref(false)
 const isMobileMenuOpen = ref(false)
 const isMobileSearchOpen = ref(false)
 const isLocationModalOpen = ref(false)
+const isLocationApprovalModalOpen = ref(false)
 const searchQuery = ref('')
 const wishlistCount = ref(4)
 const cartCount = ref(5)
+const userLocationName = ref('')
+const detectedLocation = ref<StoreLocation | null>(null)
 
 const selectedLocation = ref<StoreLocation>(storeLocations[1])
 
@@ -53,6 +56,16 @@ const closeLocationModal = () => {
   document.body.classList.remove('modal-open')
 }
 
+const openLocationApprovalModal = () => {
+  isLocationApprovalModalOpen.value = true
+  document.body.classList.add('modal-open')
+}
+
+const closeLocationApprovalModal = () => {
+  isLocationApprovalModalOpen.value = false
+  document.body.classList.remove('modal-open')
+}
+
 const selectLocation = (location: StoreLocation) => {
   selectedLocation.value = location
 }
@@ -64,25 +77,67 @@ const saveSelectedLocation = () => {
   closeLocationModal()
 }
 
+const approveDetectedLocation = () => {
+  if (detectedLocation.value) {
+    selectedLocation.value = detectedLocation.value
+    if (process.client) {
+      localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation.value))
+      localStorage.setItem('locationApproved', 'true')
+    }
+  }
+  closeLocationApprovalModal()
+}
+
+const rejectDetectedLocation = () => {
+  closeLocationApprovalModal()
+  // Optionally open manual location selection modal
+  setTimeout(() => {
+    openLocationModal()
+  }, 300)
+}
+
+const getLocationName = async (latitude: number, longitude: number) => {
+  try {
+    // Using a free geocoding service (you might want to use Google Maps API in production)
+    const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=id`)
+    const data = await response.json()
+    return data.city || data.locality || data.principalSubdivision || 'Lokasi tidak diketahui'
+  } catch (error) {
+    console.error('Error getting location name:', error)
+    return 'Lokasi tidak diketahui'
+  }
+}
+
 const detectUserLocation = () => {
   if (process.client && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const userLat = position.coords.latitude
         const userLng = position.coords.longitude
         
         console.log('User location:', userLat, userLng)
         
-
+        // Get location name
+        userLocationName.value = await getLocationName(userLat, userLng)
+        
+        // Determine nearest store based on longitude (simple logic)
         if (userLng > 119) {
-          selectedLocation.value = storeLocations.find(loc => loc.name === 'Kupang') || storeLocations[1]
+          detectedLocation.value = storeLocations.find(loc => loc.name === 'Kupang') || storeLocations[1]
         } else {
-          selectedLocation.value = storeLocations.find(loc => loc.name === 'Samarinda') || storeLocations[0]
+          detectedLocation.value = storeLocations.find(loc => loc.name === 'Samarinda') || storeLocations[0]
         }
+        
+        // Show approval modal
+        openLocationApprovalModal()
       },
       (error) => {
         console.log('Location detection error:', error)
         selectedLocation.value = storeLocations[1]
+        
+        // Show manual location selection if geolocation fails
+        setTimeout(() => {
+          openLocationModal()
+        }, 1000)
       }
     )
   }
@@ -92,7 +147,9 @@ const detectUserLocation = () => {
 const loadSavedLocation = () => {
   if (process.client) {
     const savedLocation = localStorage.getItem('selectedLocation')
-    if (savedLocation) {
+    const locationApproved = localStorage.getItem('locationApproved')
+    
+    if (savedLocation && locationApproved) {
       try {
         selectedLocation.value = JSON.parse(savedLocation)
       } catch (error) {
@@ -100,6 +157,7 @@ const loadSavedLocation = () => {
         selectedLocation.value = storeLocations[1]
       }
     } else {
+      // Only detect location if not previously approved
       detectUserLocation()
     }
   }
@@ -141,7 +199,6 @@ onUnmounted(() => {
 
 const route = useRoute()
 
-
 watch(() => route.path, () => {
   closeMobileMenu()
 })
@@ -153,15 +210,15 @@ watch(() => route.path, () => {
     <div class="topbar bg-light py-1 border-bottom" :class="{ 'd-none': isScrolled }">
       <div class="container">
         <div class="row">
-          <div class="col-md-12 col-12 text-center text-md-start">
-            <span class="small">Pusat Grosir - <strong>Belanja Grosir, Kualitas Premium</strong></span>
+          <div class="col-md-6 col-12 text-center text-md-start">
+            <span class="small">Gudang Grosiran – <strong>Belanja Grosir, Kualitas Premium</strong></span>
           </div>
-          <!-- <div class="col-md-6 text-end d-none d-md-block"> -->
+          <div class="col-md-6 text-end d-none d-md-block">
             <!-- <span class="dropdown-toggle cursor-pointer small">
               <i class="bi bi-globe me-1"></i>
               English
             </span> -->
-          <!-- </div> -->
+          </div>
         </div>
       </div>
     </div>
@@ -185,14 +242,14 @@ watch(() => route.path, () => {
            <div class="location-box">
                 <button class="btn btn-sm location-button" @click="openLocationModal">
                     <span class="location-arrow">
-                      <i class="bi bi-shop" style="font-size: 20px; color:#333;"></i>
+                      <i class="bi bi-shop" style="font-size:20px;color:#333;"></i>
                     </span>
                     <span class="locat-name">{{ selectedLocation.name }}</span>
                     <i class="fa-solid fa-angle-down"></i>
                 </button>
             </div>
           </div>
-          <!-- Search Bar - Desktop -->
+           <!-- Search Bar - Desktop -->
           <div class="col-lg-6 d-none d-lg-block">
             <form class="search-form">
               <div class="input-group">
@@ -212,19 +269,18 @@ watch(() => route.path, () => {
           <!-- Header Actions -->
           <div class="col-4 col-lg-2">
             <div class="d-flex align-items-center justify-content-end gap-3">
-              <!-- Mobile Search Toggle -->
-              <a href="#" class="text-black social-header fs-5"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="text-black social-header fs-5"><i class="bi bi-instagram"></i></a>
-              <a href="#" class="text-black social-header fs-5"><i class="bi bi-twitter"></i></a>
-              <a href="#" class="text-black social-header fs-5"><i class="bi bi-linkedin"></i></a>
-
+              <!-- Social Media Links -->
+                <a href="#" class="text-black social-header fs-5"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="text-black social-header fs-5"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="text-black social-header fs-5"><i class="bi bi-twitter"></i></a>
+                <a href="#" class="text-black social-header fs-5"><i class="bi bi-linkedin"></i></a>
               <!-- Mobile Menu Toggle -->
               <button 
                 class="btn btn-link d-lg-none p-0 ms-2" 
                 @click="toggleMobileMenu"
                 type="button"
               >
-                <i class="bi text-main" :class="isMobileMenuOpen ? 'bi-x-lg' : 'bi-list'" style="font-size: 1.5rem;"></i>
+                <i class="text-main bi" :class="isMobileMenuOpen ? 'bi-x-lg' : 'bi-list'" style="font-size: 1.5rem;"></i>
               </button>
             </div>
           </div>
@@ -283,7 +339,7 @@ watch(() => route.path, () => {
       <div class="mobile-menu-header p-3 border-bottom">
         <h5 class="mb-0">Menu</h5>
         <button 
-          class="btn btn-link p-0 text-main" 
+          class="btn btn-link p-0" 
           @click="closeMobileMenu"
           type="button"
         >
@@ -331,7 +387,71 @@ watch(() => route.path, () => {
       </div>
     </div>
 
-    <!-- Location Modal -->
+    <!-- Location Approval Modal -->
+    <div 
+      v-if="isLocationApprovalModalOpen" 
+      class="modal-overlay" 
+      @click="closeLocationApprovalModal"
+    >
+      <div class="modal-dialog" @click.stop>
+        <div class="modal-content location-approval-modal">
+          <div class="modal-header">
+            <h6 class="modal-title">
+              <i class="bi bi-geo-alt-fill me-2 text-main"></i>
+              Konfirmasi Lokasi Anda
+            </h6>
+          </div>
+          <div class="modal-body text-center">
+            <div class="location-icon mb-3">
+              <i class="bi bi-geo-alt-fill text-main" style="font-size: 2rem;"></i>
+            </div>
+            
+            <h6 class="mb-3">Alamat Anda saat ini:</h6>
+            <p class="user-location-text mb-4">
+              <i class="bi bi-pin-map me-2"></i>
+              <strong>{{ userLocationName || 'Mendeteksi lokasi...' }}</strong>
+            </p>
+            
+            <div class="nearest-store-info" v-if="detectedLocation">
+              <p class="mb-2">Kami akan mengarahkan Anda ke toko terdekat:</p>
+              <div class="store-card">
+                <div class="store-name">
+                  <i class="bi bi-shop me-2"></i>
+                  <strong>{{ detectedLocation.name }}</strong>
+                </div>
+                <div class="store-address text-muted">
+                  {{ detectedLocation.address }}
+                </div>
+                <div class="store-phone text-muted">
+                  <i class="bi bi-telephone me-1"></i>
+                  {{ detectedLocation.phone }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button 
+              type="button" 
+              class="btn btn-sm btn-outline-main-black me-2" 
+              @click="rejectDetectedLocation"
+            >
+              <i class="bi bi-x-circle me-1"></i>
+              Pilih Manual
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-sm btn-primary" 
+              @click="approveDetectedLocation"
+            >
+              <i class="bi bi-check-circle me-1"></i>
+              Ya, Benar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location Manual Selection Modal -->
     <div 
       v-if="isLocationModalOpen" 
       class="modal-overlay" 
@@ -340,10 +460,10 @@ watch(() => route.path, () => {
       <div class="modal-dialog" @click.stop>
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">
+            <h6 class="modal-title">
               <i class="bi bi-geo-alt-fill me-2"></i>
               Pilih Lokasi Toko
-            </h5>
+            </h6>
             <button 
               type="button" 
               class="btn-close" 
@@ -376,14 +496,14 @@ watch(() => route.path, () => {
           <div class="modal-footer">
             <button 
               type="button" 
-              class="btn btn-secondary" 
+              class="btn btn-sm btn-outline-main-black" 
               @click="closeLocationModal"
             >
               Batal
             </button>
             <button 
               type="button" 
-              class="btn btn-primary" 
+              class="btn btn-sm btn-primary" 
               @click="saveSelectedLocation"
             >
               Simpan Lokasi
@@ -395,10 +515,7 @@ watch(() => route.path, () => {
   </div>
 </template>
 
-
-
 <style scoped>
-
 .main-header {
   position: fixed;
   top: 0;
@@ -509,6 +626,11 @@ watch(() => route.path, () => {
 }
 
 /* Search form */
+.btn-sarch {
+    background-color: #e62129;
+    border-color: #e62129;
+    color: #fff;
+}
 
 /* Navigation links */
 .nav-link {
@@ -623,9 +745,53 @@ watch(() => route.path, () => {
   animation: slideIn 0.3s ease;
 }
 
+/* Location Approval Modal Styles */
+.location-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-location-text {
+  color: #333;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.nearest-store-info {
+  background: #fff5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #ffe0e0;
+}
+
+.store-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.store-name {
+  color: #e62129;
+  margin-bottom: 0.5rem;
+}
+
+.store-address {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.store-phone {
+  font-size: 0.95rem;
+}
+
 .modal-header {
   display: flex;
-  justify-content: between;
+  justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid #dee2e6;
@@ -633,7 +799,7 @@ watch(() => route.path, () => {
 
 .modal-title {
   margin: 0;
-  font-size: 1.25rem;
+  /* font-size: 1.25rem; */
   font-weight: 600;
   color: #333;
 }
@@ -661,7 +827,8 @@ watch(() => route.path, () => {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1rem;
+  font-size: 14px;
 }
 
 .location-list {
@@ -672,7 +839,7 @@ watch(() => route.path, () => {
 
 .location-item {
   display: flex;
-  justify-content: between;
+  justify-content: space-between;
   align-items: center;
   padding: 1rem;
   border: 2px solid #e9ecef;
@@ -732,6 +899,8 @@ watch(() => route.path, () => {
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-secondary {
@@ -743,6 +912,17 @@ watch(() => route.path, () => {
   background: #5a6268;
 }
 
+/* .btn-outline-secondary {
+  background: transparent;
+  color: #6c757d;
+  border: 2px solid #6c757d;
+} */
+
+.btn-outline-secondary:hover {
+  background: #6c757d;
+  color: white;
+}
+
 .btn-primary {
   background: #e62129;
   color: white;
@@ -751,7 +931,6 @@ watch(() => route.path, () => {
 .btn-primary:hover {
   background: #c71e24;
 }
-
 
 :global(body.modal-open) {
   overflow: hidden;
@@ -822,6 +1001,19 @@ watch(() => route.path, () => {
     align-self: flex-end;
     margin-left: 0;
     margin-top: -1.5rem;
+  }
+
+  .location-approval-modal .modal-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .store-card {
+    padding: 0.75rem;
+  }
+
+  .user-location-text {
+    font-size: 1rem;
+    padding: 0.75rem;
   }
 }
 
