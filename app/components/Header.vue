@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
 interface StoreLocation {
-  id: number
+  id: string 
+  uuid: string
   name: string
   address: string
   phone: string
-  latitude?: number
-  longitude?: number
+  latitude: number
+  longitude: number
 }
 
 const menus = [
@@ -19,16 +20,22 @@ const menus = [
 
 const storeLocations: StoreLocation[] = [
   {
-    id: 1,
+    id: "wdjqwd809dijqwiodj",
+    uuid: "550e8400-e29b-41d4-a716-446655440001",
     name: "Samarinda",
     address: "Jl Kemakmuran no 71, Sungai Pindang Dalam, Kota Samarinda, Kalimantan Timur (75242)",
-    phone: "081130776712"
+    phone: "081130776712",
+    latitude: -0.502106,
+    longitude: 117.153709
   },
   {
-    id: 2,
+    id: "wdjqwd809dijqwiedw",
+    uuid: "550e8400-e29b-41d4-a716-446655440002",
     name: "Kupang",
-    address: " Jl. Terusan Timor Raya No.3, Oesapa, Kec. Klp. Lima, Kota Kupang, Nusa Tenggara Tim (85228)",
-    phone: "081130757550"
+    address: "Jl. Terusan Timor Raya No.3, Oesapa, Kec. Klp. Lima, Kota Kupang, Nusa Tenggara Tim (85228)",
+    phone: "081130757550",
+    latitude: -10.178757,
+    longitude: 123.597603
   }
 ]
 
@@ -42,13 +49,26 @@ const wishlistCount = ref(4)
 const cartCount = ref(5)
 const userLocationName = ref('')
 const detectedLocation = ref<StoreLocation | null>(null)
+const userLatitude = ref<number | null>(null)
+const userLongitude = ref<number | null>(null)
+const mapLoaded = ref(false)
 
 const selectedLocation = ref<StoreLocation>(storeLocations[1])
+
+// Global store UUID composable for use across components
+const useSelectedStoreUUID = () => {
+  return {
+    getStoreUUID: () => selectedLocation.value.uuid,
+    getStoreData: () => selectedLocation.value
+  }
+}
 
 // Location functions
 const openLocationModal = () => {
   isLocationModalOpen.value = true
   document.body.classList.add('modal-open')
+  // Load map after modal opens
+  setTimeout(initializeMap, 300)
 }
 
 const closeLocationModal = () => {
@@ -59,6 +79,8 @@ const closeLocationModal = () => {
 const openLocationApprovalModal = () => {
   isLocationApprovalModalOpen.value = true
   document.body.classList.add('modal-open')
+  // Load map after modal opens
+  setTimeout(initializeMap, 300)
 }
 
 const closeLocationApprovalModal = () => {
@@ -73,6 +95,14 @@ const selectLocation = (location: StoreLocation) => {
 const saveSelectedLocation = () => {
   if (process.client) {
     localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation.value))
+    localStorage.setItem('selectedStoreUUID', selectedLocation.value.uuid)
+    // Emit event for other components to listen
+    window.dispatchEvent(new CustomEvent('storeLocationChanged', { 
+      detail: { 
+        storeUUID: selectedLocation.value.uuid,
+        storeData: selectedLocation.value 
+      } 
+    }))
   }
   closeLocationModal()
 }
@@ -82,7 +112,15 @@ const approveDetectedLocation = () => {
     selectedLocation.value = detectedLocation.value
     if (process.client) {
       localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation.value))
+      localStorage.setItem('selectedStoreUUID', selectedLocation.value.uuid)
       localStorage.setItem('locationApproved', 'true')
+      // Emit event for other components
+      window.dispatchEvent(new CustomEvent('storeLocationChanged', { 
+        detail: { 
+          storeUUID: selectedLocation.value.uuid,
+          storeData: selectedLocation.value 
+        } 
+      }))
     }
   }
   closeLocationApprovalModal()
@@ -115,17 +153,28 @@ const detectUserLocation = () => {
         const userLat = position.coords.latitude
         const userLng = position.coords.longitude
         
+        // Store user coordinates
+        userLatitude.value = userLat
+        userLongitude.value = userLng
+        
         console.log('User location:', userLat, userLng)
         
         // Get location name
         userLocationName.value = await getLocationName(userLat, userLng)
         
-        // Determine nearest store based on longitude (simple logic)
-        if (userLng > 119) {
-          detectedLocation.value = storeLocations.find(loc => loc.name === 'Kupang') || storeLocations[1]
-        } else {
-          detectedLocation.value = storeLocations.find(loc => loc.name === 'Samarinda') || storeLocations[0]
-        }
+        // Determine nearest store based on distance
+        let nearestStore = storeLocations[0]
+        let minDistance = calculateDistance(userLat, userLng, nearestStore.latitude, nearestStore.longitude)
+        
+        storeLocations.forEach(store => {
+          const distance = calculateDistance(userLat, userLng, store.latitude, store.longitude)
+          if (distance < minDistance) {
+            minDistance = distance
+            nearestStore = store
+          }
+        })
+        
+        detectedLocation.value = nearestStore
         
         // Show approval modal
         openLocationApprovalModal()
@@ -143,15 +192,158 @@ const detectUserLocation = () => {
   }
 }
 
+// Calculate distance between two points (Haversine formula)
+const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+  const R = 6371 // Radius of the Earth in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng/2) * Math.sin(dLng/2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  return R * c
+}
+
+// Initialize map for both modals
+const initializeMap = () => {
+  if (!process.client || mapLoaded.value) return
+  
+  // Load Leaflet dynamically
+  const script = document.createElement('script')
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'
+  script.onload = () => {
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'
+    document.head.appendChild(link)
+    
+    setTimeout(() => {
+      createMap()
+      mapLoaded.value = true
+    }, 100)
+  }
+  document.head.appendChild(script)
+}
+
+const createMap = () => {
+  const mapContainer = document.getElementById('locationMap')
+  if (!mapContainer || !window.L) return
+  
+  // Clear existing map
+  mapContainer.innerHTML = ''
+  
+  // Determine map center and zoom
+  let center, zoom
+  if (userLatitude.value && userLongitude.value) {
+    center = [userLatitude.value, userLongitude.value]
+    zoom = 10
+  } else if (detectedLocation.value) {
+    center = [detectedLocation.value.latitude, detectedLocation.value.longitude]
+    zoom = 12
+  } else {
+    // Default center (Indonesia)
+    center = [-2.5489, 118.0149]
+    zoom = 5
+  }
+  
+  const map = window.L.map('locationMap').setView(center, zoom)
+  
+  // Add OpenStreetMap tiles
+  window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map)
+  
+  // Add user location marker if available
+  if (userLatitude.value && userLongitude.value) {
+    const userIcon = window.L.divIcon({
+      className: 'user-location-marker',
+      html: '<div class="user-marker"><i class="bi bi-person-fill"></i></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    })
+    
+    window.L.marker([userLatitude.value, userLongitude.value], { icon: userIcon })
+      .bindPopup('Lokasi Anda')
+      .addTo(map)
+  }
+  
+  // Add store location markers
+  storeLocations.forEach(store => {
+    const isSelected = selectedLocation.value.id === store.id
+    const storeIcon = window.L.divIcon({
+      className: 'store-location-marker',
+      html: `<div class="store-marker ${isSelected ? 'selected' : ''}" data-store-id="${store.id}">
+               <i class="bi bi-shop"></i>
+             </div>`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    })
+    
+    const marker = window.L.marker([store.latitude, store.longitude], { icon: storeIcon })
+      .bindPopup(`
+        <div class="store-popup">
+          <h6>${store.name}</h6>
+          <p><i class="bi bi-geo-alt"></i> ${store.address}</p>
+          <p><i class="bi bi-telephone"></i> ${store.phone}</p>
+          <button class="btn btn-sm btn-primary" onclick="selectStoreFromMap('${store.id}')">
+            Pilih Toko Ini
+          </button>
+        </div>
+      `)
+      .addTo(map)
+    
+    // Add click event to marker
+    marker.on('click', () => {
+      selectLocation(store)
+      updateMapMarkers()
+    })
+  })
+}
+
+// Global function to select store from map popup
+if (process.client) {
+  window.selectStoreFromMap = (storeId: string) => {
+    const store = storeLocations.find(s => s.id === storeId)
+    if (store) {
+      selectLocation(store)
+      updateMapMarkers()
+    }
+  }
+}
+
+const updateMapMarkers = () => {
+  // Update marker styles to reflect selection
+  const markers = document.querySelectorAll('.store-marker')
+  markers.forEach(marker => {
+    const storeId = marker.getAttribute('data-store-id')
+    if (storeId === selectedLocation.value.id) {
+      marker.classList.add('selected')
+    } else {
+      marker.classList.remove('selected')
+    }
+  })
+}
+
 // Load saved location from localStorage
 const loadSavedLocation = () => {
   if (process.client) {
     const savedLocation = localStorage.getItem('selectedLocation')
     const locationApproved = localStorage.getItem('locationApproved')
+    const savedUUID = localStorage.getItem('selectedStoreUUID')
     
-    if (savedLocation && locationApproved) {
+    if (savedLocation && locationApproved && savedUUID) {
       try {
-        selectedLocation.value = JSON.parse(savedLocation)
+        const parsedLocation = JSON.parse(savedLocation)
+        // Verify UUID matches
+        if (parsedLocation.uuid === savedUUID) {
+          selectedLocation.value = parsedLocation
+        } else {
+          // UUID mismatch, reset
+          localStorage.removeItem('selectedLocation')
+          localStorage.removeItem('selectedStoreUUID')
+          localStorage.removeItem('locationApproved')
+          detectUserLocation()
+        }
       } catch (error) {
         console.error('Error parsing saved location:', error)
         selectedLocation.value = storeLocations[1]
@@ -185,6 +377,12 @@ const toggleMobileSearch = () => {
   isMobileSearchOpen.value = !isMobileSearchOpen.value
 }
 
+// Expose store UUID function globally
+if (process.client) {
+  window.getSelectedStoreUUID = () => selectedLocation.value.uuid
+  window.getSelectedStoreData = () => selectedLocation.value
+}
+
 // Lifecycle
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
@@ -201,6 +399,13 @@ const route = useRoute()
 
 watch(() => route.path, () => {
   closeMobileMenu()
+})
+
+// Provide store data for child components
+provide('selectedStore', {
+  uuid: computed(() => selectedLocation.value.uuid),
+  data: computed(() => selectedLocation.value),
+  refresh: loadSavedLocation
 })
 </script>
 
@@ -348,14 +553,6 @@ watch(() => route.path, () => {
       </div>
       
       <div class="mobile-menu-content">
-        <!-- Account Section -->
-        <!-- <div class="p-3 border-bottom">
-          <NuxtLink to="/account" class="d-flex align-items-center text-decoration-none" @click="closeMobileMenu">
-            <i class="bi bi-person-circle fs-4 me-3"></i>
-            <span>My Account</span>
-          </NuxtLink>
-        </div> -->
-
         <!-- Main Navigation -->
         <ul class="list-unstyled mb-0">
           <li v-for="menu in menus" :key="menu.path">
@@ -369,21 +566,6 @@ watch(() => route.path, () => {
             </NuxtLink>
           </li>
         </ul>
-
-        <!-- Bottom Actions -->
-        <!-- <div class="mobile-menu-actions p-3 border-top mt-3">
-          <NuxtLink to="/wishlist" class="d-flex align-items-center mb-3 text-decoration-none" @click="closeMobileMenu">
-            <i class="bi bi-heart fs-5 me-3"></i>
-            <span>Wishlist</span>
-            <span class="badge bg-primary ms-auto">{{ wishlistCount }}</span>
-          </NuxtLink>
-          
-          <NuxtLink to="#" class="d-flex align-items-center text-decoration-none" @click="closeMobileMenu">
-            <i class="bi bi-bag fs-5 me-3"></i>
-            <span>Shopping Cart</span>
-            <span class="badge bg-success ms-auto">{{ cartCount }}</span>
-          </NuxtLink>
-        </div> -->
       </div>
     </div>
 
@@ -401,30 +583,39 @@ watch(() => route.path, () => {
               Konfirmasi Lokasi Anda
             </h6>
           </div>
-          <div class="modal-body text-center">
-            <div class="location-icon mb-3">
-              <i class="bi bi-geo-alt-fill text-main" style="font-size: 2rem;"></i>
+          <div class="modal-body">
+            <!-- Map Container -->
+            <div class="map-container mb-3">
+              <div id="locationMap" class="location-map"></div>
+              <!-- Bouncing Location Pin -->
+              <div class="location-pin-overlay">
+                <div class="location-pin bounce">
+                  <i class="bi bi-geo-alt-fill"></i>
+                </div>
+              </div>
             </div>
             
-            <h6 class="mb-3">Alamat Anda saat ini:</h6>
-            <p class="user-location-text mb-4">
-              <i class="bi bi-pin-map me-2"></i>
-              <strong>{{ userLocationName || 'Mendeteksi lokasi...' }}</strong>
-            </p>
-            
-            <div class="nearest-store-info" v-if="detectedLocation">
-              <p class="mb-2">Kami akan mengarahkan Anda ke toko terdekat:</p>
-              <div class="store-card">
-                <div class="store-name">
-                  <i class="bi bi-shop me-2"></i>
-                  <strong>{{ detectedLocation.name }}</strong>
-                </div>
-                <div class="store-address text-muted">
-                  {{ detectedLocation.address }}
-                </div>
-                <div class="store-phone text-muted">
-                  <i class="bi bi-telephone me-1"></i>
-                  {{ detectedLocation.phone }}
+            <div class="text-center">
+              <span class="mb-1">Alamat Anda saat ini:</span>
+              <p class="user-location-text mx-2 mb-3">
+                <i class="bi bi-pin-map me-2"></i>
+                <strong>{{ userLocationName || 'Mendeteksi lokasi...' }}</strong>
+              </p>
+              
+              <div class="nearest-store-info" v-if="detectedLocation">
+                <p class="mb-2">Kami akan mengarahkan Anda ke toko terdekat:</p>
+                <div class="store-card">
+                  <div class="store-name">
+                    <i class="bi bi-shop me-2"></i>
+                    <strong>{{ detectedLocation.name }}</strong>
+                  </div>
+                  <div class="store-address text-muted">
+                    {{ detectedLocation.address }}
+                  </div>
+                  <div class="store-phone text-muted">
+                    <i class="bi bi-telephone me-1"></i>
+                    {{ detectedLocation.phone }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -435,7 +626,6 @@ watch(() => route.path, () => {
               class="btn btn-sm btn-outline-main-black me-2" 
               @click="rejectDetectedLocation"
             >
-              <i class="bi bi-x-circle me-1"></i>
               Pilih Manual
             </button>
             <button 
@@ -443,7 +633,6 @@ watch(() => route.path, () => {
               class="btn btn-sm btn-primary" 
               @click="approveDetectedLocation"
             >
-              <i class="bi bi-check-circle me-1"></i>
               Ya, Benar
             </button>
           </div>
@@ -457,7 +646,7 @@ watch(() => route.path, () => {
       class="modal-overlay" 
       @click="closeLocationModal"
     >
-      <div class="modal-dialog" @click.stop>
+      <div class="modal-dialog modal-lg" @click.stop>
         <div class="modal-content">
           <div class="modal-header">
             <h6 class="modal-title">
@@ -472,9 +661,20 @@ watch(() => route.path, () => {
             ></button>
           </div>
           <div class="modal-body">
-            <p class="text-muted mb-3">Pilih lokasi toko terdekat untuk pengalaman berbelanja yang lebih baik</p>
+            <!-- Map Container -->
+            <div class="map-container mb-4">
+              <div id="locationMap" class="location-map"></div>
+              <!-- Bouncing Location Pin for selected store -->
+              <div class="location-pin-overlay" v-if="selectedLocation">
+                <div class="location-pin bounce selected">
+                  <i class="bi bi-shop"></i>
+                </div>
+              </div>
+            </div>
             
-            <div class="location-list">
+            <p class="text-muted mx-3 mb-3">Pilih lokasi toko terdekat untuk pengalaman berbelanja yang lebih baik</p>
+            
+            <div class="location-list mx-3">
               <div 
                 v-for="location in storeLocations" 
                 :key="location.id"
@@ -486,6 +686,7 @@ watch(() => route.path, () => {
                   <div class="location-name">{{ location.name }}</div>
                   <div class="location-address">{{ location.address }}</div>
                   <div class="location-phone">{{ location.phone }}</div>
+                  <div class="location-uuid text-muted small">ID: {{ location.uuid }}</div>
                 </div>
                 <div class="location-check" v-if="selectedLocation.id === location.id">
                   <i class="bi bi-check-circle-fill text-success"></i>
@@ -595,6 +796,168 @@ watch(() => route.path, () => {
 
 .locat-name {
   font-weight: 500;
+}
+
+/* Map Styles */
+.map-container {
+  position: relative;
+  height: 175px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.location-map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Bouncing Pin Overlay */
+.location-pin-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.location-pin {
+  width: 40px;
+  height: 40px;
+  background: #ff4444;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
+  position: relative;
+}
+
+.location-pin i {
+  transform: rotate(45deg);
+}
+
+.location-pin.selected {
+  background: #28a745;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+/* Bounce Animation */
+.location-pin.bounce {
+  animation: bouncePin 2s infinite;
+}
+
+@keyframes bouncePin {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) rotate(-45deg);
+  }
+  40% {
+    transform: translateY(-10px) rotate(-45deg);
+  }
+  60% {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+}
+
+/* Custom Map Markers */
+:global(.user-location-marker) {
+  background: transparent !important;
+  border: none !important;
+}
+
+:global(.user-marker) {
+  width: 30px;
+  height: 30px;
+  background: #007bff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 2px 20px rgba(0, 123, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.4);
+  }
+}
+
+:global(.store-location-marker) {
+  background: transparent !important;
+  border: none !important;
+}
+
+:global(.store-marker) {
+  width: 40px;
+  height: 40px;
+  background: #e62129;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 3px 10px rgba(230, 33, 41, 0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+:global(.store-marker:hover) {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(230, 33, 41, 0.6);
+}
+
+:global(.store-marker.selected) {
+  background: #28a745;
+  box-shadow: 0 3px 10px rgba(40, 167, 69, 0.4);
+  animation: selectedPulse 1.5s infinite;
+}
+
+@keyframes selectedPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Store Popup Styles */
+:global(.store-popup) {
+  min-width: 200px;
+}
+
+:global(.store-popup h6) {
+  margin: 0 0 8px 0;
+  color: #e62129;
+  font-weight: 600;
+}
+
+:global(.store-popup p) {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+:global(.store-popup .btn) {
+  margin-top: 8px;
+  width: 100%;
 }
 
 /* Header icons */
@@ -738,6 +1101,10 @@ watch(() => route.path, () => {
   margin: 1rem;
 }
 
+.modal-dialog.modal-lg {
+  max-width: 800px;
+}
+
 .modal-content {
   background: white;
   border-radius: 8px;
@@ -762,7 +1129,7 @@ watch(() => route.path, () => {
 
 .nearest-store-info {
   background: #fff5f5;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 8px;
   border: 1px solid #ffe0e0;
 }
@@ -799,7 +1166,6 @@ watch(() => route.path, () => {
 
 .modal-title {
   margin: 0;
-  /* font-size: 1.25rem; */
   font-weight: 600;
   color: #333;
 }
@@ -827,7 +1193,6 @@ watch(() => route.path, () => {
 }
 
 .modal-body {
-  padding: 1rem;
   font-size: 14px;
 }
 
@@ -877,6 +1242,13 @@ watch(() => route.path, () => {
 .location-phone {
   color: #888;
   font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.location-uuid {
+  color: #999;
+  font-size: 0.75rem;
+  font-family: monospace;
 }
 
 .location-check {
@@ -911,12 +1283,6 @@ watch(() => route.path, () => {
 .btn-secondary:hover {
   background: #5a6268;
 }
-
-/* .btn-outline-secondary {
-  background: transparent;
-  color: #6c757d;
-  border: 2px solid #6c757d;
-} */
 
 .btn-outline-secondary:hover {
   background: #6c757d;
@@ -969,7 +1335,11 @@ watch(() => route.path, () => {
   }
 
   :global(body) {
-    padding-top: 80px; /* Reduced padding for mobile */
+    padding-top: 80px;
+  }
+  
+  .map-container {
+    height: 250px;
   }
 }
 
@@ -989,6 +1359,11 @@ watch(() => route.path, () => {
 
   .modal-dialog {
     width: 95%;
+  }
+  
+  .modal-dialog.modal-lg {
+    width: 98%;
+    max-width: none;
   }
 
   .location-item {
@@ -1015,6 +1390,10 @@ watch(() => route.path, () => {
     font-size: 1rem;
     padding: 0.75rem;
   }
+  
+  .map-container {
+    height: 200px;
+  }
 }
 
 .mobile-menu-content::-webkit-scrollbar {
@@ -1033,4 +1412,5 @@ watch(() => route.path, () => {
 .mobile-menu-content::-webkit-scrollbar-thumb:hover {
   background: #999;
 }
+
 </style>
