@@ -1128,10 +1128,10 @@ provide('selectedStore', {
 }
 
 .nearest-store-info {
-  background: #fff5f5;
+  background: #eff6ff;
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid #ffe0e0;
+  border: 1px solid #eff6ff;
 }
 
 .store-card {
