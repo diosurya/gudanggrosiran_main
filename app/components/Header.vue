@@ -13,7 +13,7 @@ interface StoreLocation {
 const menus = [
   { title: "Beranda", path: "/" },
   { title: "Tentang Kami", path: "/about" },
-  { title: "Produk", path: "/produk" },
+  { title: "Produk", path: "/products" },
   { title: "Artikel", path: "/blogs" },
   { title: "Kontak Kami", path: "/contact" },
 ]
@@ -21,7 +21,7 @@ const menus = [
 const storeLocations: StoreLocation[] = [
   {
     id: "wdjqwd809dijqwiodj",
-    uuid: "550e8400-e29b-41d4-a716-446655440001",
+    uuid: "78fb17ec-8d46-11f0-ae4e-b42e99edc3be",
     name: "Samarinda",
     address: "Jl Kemakmuran no 71, Sungai Pindang Dalam, Kota Samarinda, Kalimantan Timur (75242)",
     phone: "081130776712",
@@ -30,7 +30,7 @@ const storeLocations: StoreLocation[] = [
   },
   {
     id: "wdjqwd809dijqwiedw",
-    uuid: "550e8400-e29b-41d4-a716-446655440002",
+    uuid: "78fb0c59-8d46-11f0-ae4e-b42e99edc3be",
     name: "Kupang",
     address: "Jl. Terusan Timor Raya No.3, Oesapa, Kec. Klp. Lima, Kota Kupang, Nusa Tenggara Tim (85228)",
     phone: "081130757550",

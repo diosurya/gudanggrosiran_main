@@ -74,7 +74,6 @@ useHead(() => {
   }
 })
 
-// dummy tags kalau API belum ada
 const tags = computed<string[]>(() =>
   (post.value?.tags && post.value.tags.length)
     ? post.value.tags.map((t: any) => t.name || t)
