@@ -122,6 +122,12 @@ ul li a:hover {
     color: #ffbdc0;
 }
 
+button.btn.btn-outline-main.active {
+    color: #fff !important;
+    background-color: #E62128 !important;
+    border: 1px solid #E62124;
+}
+
 /* .form-check-input:checked {
     background-color: #e62129;
     border-color: #e62129;

@@ -1,11 +1,11 @@
 <template>
-  <div class="min-vh-100 bg-light">
+  <div class="min-vh-100 bg-white bg-gradient-to-br">
     <div class="container py-5">
       <div class="row g-4">
         
         <!-- Sidebar Filter -->
         <div class="col-lg-3 col-md-4 hide-mobile">
-          <div class="bg-white rounded shadow-sm p-4 sticky-top">
+          <div class="bg-white rounded shadow-sm p-4 sticky-top" style="border: 1px solid #dee2e6;">
             
             <!-- Search -->
             <div class="mb-4">
@@ -124,7 +124,7 @@
         <div class="col-lg-9 col-md-8">
           
           <!-- Header & Controls -->
-          <div class="bg-white rounded shadow-sm p-4 mb-4">
+          <div class="bg-white rounded shadow-sm p-4 mb-4" style="border: 1px solid #dee2e6;">
             <div class="row align-items-center">
               <div class="col-md-6">
                 <h4 class="fw-bold text-dark mb-1">Produk</h4>
@@ -249,7 +249,7 @@
                   </div>
 
                   <!-- Quick Actions -->
-                  <div class="position-absolute top-0 end-0 p-2 product-actions">
+                  <!-- <div class="position-absolute top-0 end-0 p-2 product-actions">
                     <div class="d-flex flex-column gap-1">
                       <button class="btn btn-light btn-sm rounded-circle p-2 shadow-sm">
                         <i class="bi bi-heart"></i>
@@ -258,7 +258,7 @@
                         <i class="bi bi-eye"></i>
                       </button>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
 
                 <!-- Product Info -->
@@ -297,13 +297,19 @@
                   </div>
 
                   <!-- Add to Cart Button -->
-                  <button 
+                  <!-- <button 
                     :disabled="!hasStock(product)"
                     class="btn btn-main btn-sm w-100"
                   >
                     <i class="bi bi-cart-plus me-1"></i>
-                    Tambah ke Keranjang
-                  </button>
+                    Lihat Selengkapnya
+                  </button> -->
+                  <NuxtLink 
+                    :to="`/products/${product.slug}`"
+                    class="btn btn-main btn-sm w-100"
+                    >
+                      Lihat Selengkapnya
+                  </NuxtLink>
                 </div>
               </div>
             </div>
